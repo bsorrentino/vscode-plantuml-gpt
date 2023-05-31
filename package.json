@@ -12,6 +12,15 @@
   "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {
+    "viewContainers": {
+      "panel": [
+        {
+          "id": "panel-plantuml-gpt",
+          "title": "PlantUML GPT",
+          "icon": ""
+        }
+      ]
+    },
     "commands": [
       {
         "command": "plantuml-gpt.helloWorld",

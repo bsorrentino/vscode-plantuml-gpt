@@ -20,9 +20,45 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	context.subscriptions.push(disposable);
+
+
+	const provider = new PlantUMLGPTProvider(context.extensionUri);
+
+	context.subscriptions.push(
+		vscode.window.registerWebviewViewProvider(PlantUMLGPTProvider.viewId, provider));
+
 }
 
 // This method is called when your extension is deactivated
 export function deactivate() {}
 
 
+
+/**
+ * [webview-view-sample](https://github.com/microsoft/vscode-extension-samples/tree/main/webview-view-sample)
+ */
+class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
+	public static readonly viewId = 'panel-plantuml-gpt';
+
+
+	constructor( private readonly _extensionUri: vscode.Uri ) { }
+
+	resolveWebviewView(webviewView: vscode.WebviewView, context: vscode.WebviewViewResolveContext<unknown>, token: vscode.CancellationToken): void | Thenable<void> {
+		throw new Error('Method not implemented.');
+	}
+  
+	private getWebviewContent() {
+		return `<!DOCTYPE html>
+	  <html lang="en">
+	  <head>
+		  <meta charset="UTF-8">
+		  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+		  <title>Cat Coding</title>
+	  </head>
+	  <body>
+		  <img src="https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif" width="300" />
+	  </body>
+	  </html>`;
+	  }
+	
+}
