@@ -4,50 +4,109 @@ import * as vscode from 'vscode';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
 
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "plantuml-gpt" is now active!');
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('plantuml-gpt.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from plantuml-gpt!');
-	});
 
-	context.subscriptions.push(disposable);
+	context.subscriptions.push(_registerCommandOpenPanel());
 
+	
+	context.subscriptions.push(_registerPlantUMLViewProvider(context));
+		
 
-	const provider = new PlantUMLGPTProvider(context.extensionUri);
+	// const langs = await vscode.languages.getLanguages();
+	context.subscriptions.push(_detectEditorLanguage(context));
 
-	context.subscriptions.push(
-		vscode.window.registerWebviewViewProvider(PlantUMLGPTProvider.viewId, provider));
-
+	
 }
 
 // This method is called when your extension is deactivated
 export function deactivate() {}
 
+const _registerCommandOpenPanel = () => 
+	vscode.commands.registerCommand('plantuml-gpt.open', () => 
+		vscode.commands.executeCommand('setContext', 'plantuml-gpt.active', true )
+);
 
 
+const _getCurrentEditorLanguage = ( editor?: vscode.TextEditor ) => {
+	
+	if (editor) {
+		// Get the document associated with the active text editor
+		const document = editor.document;
+		
+		// Get the language ID of the document
+		return document.languageId;
+		
+	}
+	else {
+		return null;
+	}
+
+};
+
+const _detectEditorLanguage = (context: vscode.ExtensionContext) => 
+    vscode.window.onDidChangeActiveTextEditor( editor  => {
+
+		const languageId = _getCurrentEditorLanguage( editor );
+	
+		if (languageId ) {      
+			vscode.commands.executeCommand('setContext', 'plantuml-gpt.active', languageId === 'plantuml');
+
+			vscode.window.showInformationMessage(`The current editor language is ${languageId}.`);
+		}	
+		else {
+			vscode.window.showWarningMessage('No active text editor found.');
+		}
+    });
+
+const _registerPlantUMLViewProvider = (context: vscode.ExtensionContext) => {
+	const provider = new PlantUMLGPTProvider(context.extensionUri);
+
+	return vscode.window.registerWebviewViewProvider(PlantUMLGPTProvider.viewId, provider);
+}
 /**
  * [webview-view-sample](https://github.com/microsoft/vscode-extension-samples/tree/main/webview-view-sample)
  */
 class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
-	public static readonly viewId = 'panel-plantuml-gpt';
+	public static readonly viewId = 'plantuml-gpt.view';
 
+	private _view?: vscode.WebviewView;
 
-	constructor( private readonly _extensionUri: vscode.Uri ) { }
+	constructor( private readonly _extensionUri: vscode.Uri ) { 
+		console.log( 'PlantUMLGPTProvider', _extensionUri);
+	}
 
-	resolveWebviewView(webviewView: vscode.WebviewView, context: vscode.WebviewViewResolveContext<unknown>, token: vscode.CancellationToken): void | Thenable<void> {
-		throw new Error('Method not implemented.');
+	public resolveWebviewView(webviewView: vscode.WebviewView, context: vscode.WebviewViewResolveContext<unknown>, token: vscode.CancellationToken): void | Thenable<void> {
+		console.log( 'PlantUMLGPTProvider', 'resolveWebviewView');
+		this._view = webviewView;
+
+		webviewView.webview.options = {
+			// Allow scripts in the webview
+			enableScripts: true,
+
+			localResourceRoots: [
+				this._extensionUri
+			]
+		};
+
+		webviewView.webview.html = this._getWebviewContent(webviewView.webview);
+
+		webviewView.webview.onDidReceiveMessage(data => {
+			switch (data.type) {
+				case 'colorSelected':
+					{
+						vscode.window.activeTextEditor?.insertSnippet(new vscode.SnippetString(`#${data.value}`));
+						break;
+					}
+			}
+		});
 	}
   
-	private getWebviewContent() {
+	private _getWebviewContent( webview: vscode.Webview ) {
 		return `<!DOCTYPE html>
 	  <html lang="en">
 	  <head>

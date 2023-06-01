@@ -9,22 +9,35 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+  ],
   "main": "./dist/extension.js",
   "contributes": {
-    "viewContainers": {
+    "viewsContainers": {
       "panel": [
         {
-          "id": "panel-plantuml-gpt",
-          "title": "PlantUML GPT",
+          "id": "plantuml-gpt-panel",
+          "title": "PlantUML+GPT",
           "icon": ""
+        }
+      ]
+    },
+    "views": {
+      "plantuml-gpt-panel": [
+        {
+          "type": "webview",
+          "id": "plantuml-gpt.view",
+          "name": "PlantUML+GPT",
+          "icon": "",
+          "when": "plantuml-gpt.active"
         }
       ]
     },
     "commands": [
       {
-        "command": "plantuml-gpt.helloWorld",
-        "title": "Hello World"
+        "command": "plantuml-gpt.open",
+        "title": "Open PlantUML+GPT Panel",
+        "when": "plantuml-gpt.active"
       }
     ]
   },
