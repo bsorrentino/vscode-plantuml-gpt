@@ -71,11 +71,11 @@ const _detectEditorLanguage = (context: vscode.ExtensionContext) =>
 		_setActive( languageId === 'plantuml');
 	
 		if (languageId ) {      
-			console.debug( `The current editor language is ${languageId}.` );
+			console.log( `The current editor language is ${languageId}.` );
 			// vscode.window.showInformationMessage(`The current editor language is ${languageId}.`);
 		}	
 		else {
-			console.warn( 'No active text editor found.' );
+			console.log( 'No active text editor found.' );
 			// vscode.window.showWarningMessage('No active text editor found.');
 		}
     });
@@ -108,7 +108,7 @@ const _getNonce = () => {
 	  text += possible.charAt(Math.floor(Math.random() * possible.length));
 	}
 	return text;
-  }
+  };
 
 /**
  * [webview-view-sample](https://github.com/microsoft/vscode-extension-samples/tree/main/webview-view-sample)
@@ -117,6 +117,7 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 	public static readonly viewId = 'plantuml-gpt.view';
 
 	private _view?: vscode.WebviewView;
+	private _disposables: vscode.Disposable[] = [];
 
 	constructor( private readonly _extensionUri: vscode.Uri ) { 
 		console.log( 'PlantUMLGPTProvider', _extensionUri);
@@ -126,11 +127,17 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 								context: vscode.WebviewViewResolveContext<unknown>, 
 								token: vscode.CancellationToken): void | Thenable<void> 
 	{
-		// console.debug( 'PlantUMLGPTProvider', 'resolveWebviewView');
+		// console.log( 'PlantUMLGPTProvider', 'resolveWebviewView');
 
 		this._view = webviewView;
 
-		webviewView.webview.options = {
+		this._view.onDidDispose(() => {
+			console.log( 'dispose()');
+		}, null, this._disposables);
+
+		const { webview } = webviewView;
+		
+		webview.options = {
 			// Allow scripts in the webview
 			enableScripts: true,
 
@@ -139,19 +146,31 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 			]
 		};
 
-		webviewView.webview.html = this._getWebviewContent(webviewView.webview);
+		webview.html = this._getWebviewContent(webviewView.webview);
 
-		webviewView.webview.onDidReceiveMessage(data => {
-			switch (data.type) {
-				case 'colorSelected':
-					{
-						vscode.window.activeTextEditor?.insertSnippet(new vscode.SnippetString(`#${data.value}`));
-						break;
-					}
-			}
-		});
+		this._disposables.push( this._addMessageHandler(webview) );
+
 	}
   
+	private _addMessageHandler( webview: vscode.Webview  ) {
+		return webview.onDidReceiveMessage(data => {
+			console.log( 'onDidReceiveMessage', data);
+
+			const { command, text } = data;
+
+			switch (command) {
+				case 'colorSelected':
+					vscode.window.activeTextEditor?.insertSnippet(new vscode.SnippetString(`#${data.value}`));
+					return;
+				case 'submit':
+					console.log( 'submit' );
+					return;
+			}
+
+		}, undefined, this._disposables);
+
+	}
+
 	private _getWebviewContent( webview: vscode.Webview ) {
 
 		const webViewUri = _getUri( webview, this._extensionUri, ['dist', 'webview.js']);
@@ -177,9 +196,9 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 			
 		</head>
 	  <body>
-	  <vscode-text-area cols="80" rows="10" ${disabledTag('readonly')} placeholder="${ disabled ? 'Please provides API KEY in extension settings' : 'Let chat with PlantUML diagram'}">Prompt:</vscode-text-area>
+	  <vscode-text-area id="prompt" cols="80" rows="10" ${disabledTag('readonly')} placeholder="${ disabled ? 'Please provides API KEY in extension settings' : 'Let chat with PlantUML diagram'}">Prompt:</vscode-text-area>
 	  <br>
-	  <vscode-button ${disabledTag('disabled')}>Submit</vscode-button>
+	  <vscode-button id="submit" ${disabledTag('disabled')}>Submit</vscode-button>
 	  <script type="module" nonce="${nonce}" src="${webViewUri}"></script>
 	  </body>
 	  </html>`;
