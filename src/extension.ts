@@ -2,6 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 
+
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export async function activate(context: vscode.ExtensionContext) {
@@ -10,9 +11,6 @@ export async function activate(context: vscode.ExtensionContext) {
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "plantuml-gpt" is now active!');
 
-	const config = vscode.workspace.getConfiguration();
-
-	console.log( 'configuration' , config.inspect('plantuml-gpt')  );
 
 	context.subscriptions.push(_registerCommandOpenPanel());
 
@@ -22,6 +20,11 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	// const langs = await vscode.languages.getLanguages();
 	context.subscriptions.push(_detectEditorLanguage(context));
+	
+	const config = vscode.workspace.getConfiguration();
+
+	console.log( 'configuration' , config.inspect('plantuml-gpt')  );
+
 	
 }
 
@@ -65,11 +68,29 @@ const _detectEditorLanguage = (context: vscode.ExtensionContext) =>
 		}
     });
 
+/**
+ * register view provider
+ */
 const _registerPlantUMLViewProvider = (context: vscode.ExtensionContext) => {
 	const provider = new PlantUMLGPTProvider(context.extensionUri);
 
 	return vscode.window.registerWebviewViewProvider(PlantUMLGPTProvider.viewId, provider);
 };
+
+/**
+ * resolve uri
+ */
+const _getUri = (webview: vscode.Webview, extensionUri: vscode.Uri, pathList: string[]) =>
+  webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, ...pathList));
+
+const _getNonce = () => {
+	let text = "";
+	const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+	for (let i = 0; i < 32; i++) {
+	  text += possible.charAt(Math.floor(Math.random() * possible.length));
+	}
+	return text;
+  }
 
 /**
  * [webview-view-sample](https://github.com/microsoft/vscode-extension-samples/tree/main/webview-view-sample)
@@ -110,29 +131,26 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 	}
   
 	private _getWebviewContent( webview: vscode.Webview ) {
+
+		const webViewUri = _getUri( webview, this._extensionUri, ['dist', 'webview.js']);
+		
+		const nonce = _getNonce();
+
+		console.log(webViewUri, nonce );
 		return `<!DOCTYPE html>
 		<html lang="en">
 		<head>
 			<meta charset="UTF-8">
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
-			<title>Cat Coding</title>
+			<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-${nonce}';">
+			<title>PlantUML + GPT</title>
+			
 		</head>
 	  <body>
-		  <img src="https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif" width="300" />
-
-		  <script>
-			(function() {
-				const vscode = acquireVsCodeApi();
-				const myButton = document.getElementById('myButton');
-				
-				myButton.addEventListener('click', () => {
-				vscode.postMessage({
-					command: 'buttonClicked',
-					text: 'Button was clicked'
-				});
-				});
-			})();
-			</script>
+	  <vscode-text-area cols="80" rows="10">edit me</vscode-text-area>
+	  <br>
+	  <vscode-button>Click me</vscode-button>
+	  <script type="module" nonce="${nonce}" src="${webViewUri}"></script>
 	  </body>
 	  </html>`;
 	  }
