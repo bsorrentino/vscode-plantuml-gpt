@@ -10,6 +10,9 @@ export async function activate(context: vscode.ExtensionContext) {
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "plantuml-gpt" is now active!');
 
+	const config = vscode.workspace.getConfiguration();
+
+	console.log( 'configuration' , config.inspect('plantuml-gpt')  );
 
 	context.subscriptions.push(_registerCommandOpenPanel());
 
@@ -19,7 +22,6 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	// const langs = await vscode.languages.getLanguages();
 	context.subscriptions.push(_detectEditorLanguage(context));
-
 	
 }
 
@@ -67,7 +69,8 @@ const _registerPlantUMLViewProvider = (context: vscode.ExtensionContext) => {
 	const provider = new PlantUMLGPTProvider(context.extensionUri);
 
 	return vscode.window.registerWebviewViewProvider(PlantUMLGPTProvider.viewId, provider);
-}
+};
+
 /**
  * [webview-view-sample](https://github.com/microsoft/vscode-extension-samples/tree/main/webview-view-sample)
  */
@@ -108,14 +111,28 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
   
 	private _getWebviewContent( webview: vscode.Webview ) {
 		return `<!DOCTYPE html>
-	  <html lang="en">
-	  <head>
-		  <meta charset="UTF-8">
-		  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-		  <title>Cat Coding</title>
-	  </head>
+		<html lang="en">
+		<head>
+			<meta charset="UTF-8">
+			<meta name="viewport" content="width=device-width, initial-scale=1.0">
+			<title>Cat Coding</title>
+		</head>
 	  <body>
 		  <img src="https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif" width="300" />
+
+		  <script>
+			(function() {
+				const vscode = acquireVsCodeApi();
+				const myButton = document.getElementById('myButton');
+				
+				myButton.addEventListener('click', () => {
+				vscode.postMessage({
+					command: 'buttonClicked',
+					text: 'Button was clicked'
+				});
+				});
+			})();
+			</script>
 	  </body>
 	  </html>`;
 	  }

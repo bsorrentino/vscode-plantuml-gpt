@@ -13,6 +13,17 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "configuration": {
+      "title": "plantuml-gpt",
+      "properties": {
+        "plantuml-gpt.apikey": {
+          "type": "string",
+          "default": null,
+          "description": "OpenAI Api Key"
+        }
+       
+      }
+    },
     "viewsContainers": {
       "panel": [
         {
