@@ -7,33 +7,43 @@ import * as vscode from 'vscode';
 // Your extension is activated the very first time the command is executed
 export async function activate(context: vscode.ExtensionContext) {
 
+	const languageId = vscode.window.activeTextEditor?.document?.languageId;
+
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "plantuml-gpt" is now active!');
+	console.log(`Congratulations, your extension "plantuml-gpt" is now active! - languageId: ${languageId}`);
 
+	_setActive( languageId==='plantuml' );
 
-	context.subscriptions.push(_registerCommandOpenPanel());
+	// context.subscriptions.push(_registerCommandOpenPanel());
 
-	
 	context.subscriptions.push(_registerPlantUMLViewProvider(context));
 		
-
 	// const langs = await vscode.languages.getLanguages();
 	context.subscriptions.push(_detectEditorLanguage(context));
-	
-	const config = vscode.workspace.getConfiguration();
-
-	console.log( 'configuration' , config.inspect('plantuml-gpt')  );
-
 	
 }
 
 // This method is called when your extension is deactivated
 export function deactivate() {}
 
+const _setActive = ( value:boolean ) => 
+	vscode.commands.executeCommand('setContext', 'plantuml-gpt.active', value );
+
+
 const _registerCommandOpenPanel = () => 
-	vscode.commands.registerCommand('plantuml-gpt.open', () => 
-		vscode.commands.executeCommand('setContext', 'plantuml-gpt.active', true )
+	vscode.commands.registerCommand('plantuml-gpt.open', async () => {
+	
+		const { apikey } = vscode.workspace.getConfiguration('plantuml-gpt');
+
+		if( apikey && apikey.length>0 ) {
+			return _setActive( true );
+		}
+
+		return vscode.window.showWarningMessage('No OpenAPI Api Key set!');
+		
+	
+	}
 );
 
 
@@ -57,14 +67,16 @@ const _detectEditorLanguage = (context: vscode.ExtensionContext) =>
     vscode.window.onDidChangeActiveTextEditor( editor  => {
 
 		const languageId = _getCurrentEditorLanguage( editor );
+
+		_setActive( languageId === 'plantuml');
 	
 		if (languageId ) {      
-			vscode.commands.executeCommand('setContext', 'plantuml-gpt.active', languageId === 'plantuml');
-
-			vscode.window.showInformationMessage(`The current editor language is ${languageId}.`);
+			console.debug( `The current editor language is ${languageId}.` );
+			// vscode.window.showInformationMessage(`The current editor language is ${languageId}.`);
 		}	
 		else {
-			vscode.window.showWarningMessage('No active text editor found.');
+			console.warn( 'No active text editor found.' );
+			// vscode.window.showWarningMessage('No active text editor found.');
 		}
     });
 
@@ -83,6 +95,12 @@ const _registerPlantUMLViewProvider = (context: vscode.ExtensionContext) => {
 const _getUri = (webview: vscode.Webview, extensionUri: vscode.Uri, pathList: string[]) =>
   webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, ...pathList));
 
+/**
+ * You should also update the content security policy of your webview to only allow scripts that have a specific nonce
+ * 
+ * @link https://github.com/microsoft/vscode-webview-ui-toolkit/blob/main/docs/getting-started.md#enable-webview-scripts-and-improve-security
+ * @return  {[string]}  nonce value
+ */
 const _getNonce = () => {
 	let text = "";
 	const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -104,8 +122,12 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 		console.log( 'PlantUMLGPTProvider', _extensionUri);
 	}
 
-	public resolveWebviewView(webviewView: vscode.WebviewView, context: vscode.WebviewViewResolveContext<unknown>, token: vscode.CancellationToken): void | Thenable<void> {
-		console.log( 'PlantUMLGPTProvider', 'resolveWebviewView');
+	public resolveWebviewView(	webviewView: vscode.WebviewView, 
+								context: vscode.WebviewViewResolveContext<unknown>, 
+								token: vscode.CancellationToken): void | Thenable<void> 
+	{
+		// console.debug( 'PlantUMLGPTProvider', 'resolveWebviewView');
+
 		this._view = webviewView;
 
 		webviewView.webview.options = {
@@ -136,6 +158,14 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 		
 		const nonce = _getNonce();
 
+		const { apikey } = vscode.workspace.getConfiguration('plantuml-gpt');
+
+		const disabled = !(apikey && apikey.length>0);
+		
+		const disabledTag = ( tag:string ) => 
+			disabled ? tag : '';
+		
+
 		console.log(webViewUri, nonce );
 		return `<!DOCTYPE html>
 		<html lang="en">
@@ -147,9 +177,9 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 			
 		</head>
 	  <body>
-	  <vscode-text-area cols="80" rows="10">edit me</vscode-text-area>
+	  <vscode-text-area cols="80" rows="10" ${disabledTag('readonly')} placeholder="${ disabled ? 'Please provides API KEY in extension settings' : 'Let chat with PlantUML diagram'}">Prompt:</vscode-text-area>
 	  <br>
-	  <vscode-button>Click me</vscode-button>
+	  <vscode-button ${disabledTag('disabled')}>Submit</vscode-button>
 	  <script type="module" nonce="${nonce}" src="${webViewUri}"></script>
 	  </body>
 	  </html>`;

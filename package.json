@@ -9,7 +9,9 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onLanguage:plantuml"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "configuration": {
@@ -79,6 +81,7 @@
     "webpack-cli": "^5.0.2"
   },
   "dependencies": {
-    "@vscode/webview-ui-toolkit": "^1.2.2"
+    "@vscode/webview-ui-toolkit": "^1.2.2",
+    "openapi": "^1.0.1"
   }
 }
