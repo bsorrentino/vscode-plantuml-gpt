@@ -1,4 +1,4 @@
-import { Button, provideVSCodeDesignSystem, vsCodeButton, vsCodeTextArea } from "@vscode/webview-ui-toolkit";
+import { Button, TextArea, provideVSCodeDesignSystem, vsCodeButton, vsCodeTextArea } from "@vscode/webview-ui-toolkit";
 
 
 // toolkit registration 
@@ -11,11 +11,12 @@ const vscode = acquireVsCodeApi();
 window.addEventListener("load", () => {
     
     const submitButton = document.getElementById("submit") as Button;
+    const textArea = document.getElementById("prompt") as TextArea;
 
     submitButton?.addEventListener("click", () => {
         vscode.postMessage({
             command: "submit",
-            text: "submit prompt",
+            text: textArea.value,
           });
     });
   

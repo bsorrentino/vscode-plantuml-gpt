@@ -82,6 +82,6 @@
   },
   "dependencies": {
     "@vscode/webview-ui-toolkit": "^1.2.2",
-    "openapi": "^1.0.1"
+    "openai": "^3.2.1"
   }
 }

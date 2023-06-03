@@ -1,6 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+import { Configuration, OpenAIApi } from 'openai';
 
 
 // This method is called when your extension is activated
@@ -110,6 +111,39 @@ const _getNonce = () => {
 	return text;
   };
 
+
+const _getAllTextRangeFormEditor = ( editor: vscode.TextEditor ) => {
+	const { document:doc }  = editor;
+
+	const firstLine = doc.lineAt(0);
+	const  lastLine = doc.lineAt(doc.lineCount - 1);
+	return new vscode.Range(firstLine.range.start, lastLine.range.end);
+
+};
+
+
+const _replaceTextInEditor = ( editor: vscode.TextEditor, text: string ) => {
+
+	const range = _getAllTextRangeFormEditor(editor);
+
+	if( range ) {
+		editor.edit( builder => builder.replace( range, text ) );
+	}
+};
+
+const _getAllTextFromEditor = ( editor: vscode.TextEditor) => {
+
+	const range = _getAllTextRangeFormEditor( editor );
+
+	if( range ) {
+		return editor?.document.getText( range );	
+	}
+
+	return null;
+
+}
+
+
 /**
  * [webview-view-sample](https://github.com/microsoft/vscode-extension-samples/tree/main/webview-view-sample)
  */
@@ -163,7 +197,14 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 					vscode.window.activeTextEditor?.insertSnippet(new vscode.SnippetString(`#${data.value}`));
 					return;
 				case 'submit':
-					console.log( 'submit' );
+
+					this._submitAndReplace( text )
+					.then( result => {
+						console.log( 'SUBMIT COPLETE' );
+					})
+					.catch( e => {
+						console.log( 'SUBMIT ERROR', e );
+					});
 					return;
 			}
 
@@ -202,6 +243,60 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 	  <script type="module" nonce="${nonce}" src="${webViewUri}"></script>
 	  </body>
 	  </html>`;
-	  }
+	}
 	
+
+	private async _submitAndReplace( instruction: string ):Promise<void> {
+
+		const { apikey } = vscode.workspace.getConfiguration('plantuml-gpt');
+
+		if( !(apikey && apikey.length>0) ) { // GUARD
+			// eslint-disable-next-line no-throw-literal
+			throw 'apikey is not set!';
+		}
+
+		const { activeTextEditor } = vscode.window;
+
+		if( !activeTextEditor ) {
+			// eslint-disable-next-line no-throw-literal
+			throw 'no active editor!';
+		}
+
+		const input = _getAllTextFromEditor( activeTextEditor);
+
+		if( !( instruction && instruction.length>0) ) {
+			// eslint-disable-next-line no-throw-literal
+			throw 'instruction is empty!';
+		}
+
+		const configuration = new Configuration({
+		  apiKey: apikey,
+		});
+		const openai = new OpenAIApi(configuration);
+		
+		try {
+			const response = await openai.createEdit({
+				model: "text-davinci-edit-001",
+				input: input,
+				instruction: instruction,
+				temperature: 0,
+				['top_p']: 1,
+			});
+
+			const result = response.data.choices[0].text;
+
+			if( result ) {
+				_replaceTextInEditor( activeTextEditor, result );
+			}
+		}
+		catch( error:any ) {
+			if( error.response ) {
+				throw error.response;
+			}
+			else {
+				throw error;
+			}
+		}
+
+	}
 }
