@@ -176,8 +176,10 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 			enableScripts: true,
 
 			localResourceRoots: [
-				this._extensionUri
-			]
+				// this._extensionUri,
+				vscode.Uri.joinPath(this._extensionUri, 'media'),
+				vscode.Uri.joinPath(this._extensionUri, 'dist'),
+			],
 		};
 
 		webview.html = this._getWebviewContent(webviewView.webview);
@@ -197,10 +199,9 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 				// 	vscode.window.activeTextEditor?.insertSnippet(new vscode.SnippetString(`#${data.value}`));
 				// 	return;
 				case 'prompt.submit':
-
 					this._submitAndReplace( text )
 					.then( result => {
-						console.log( 'SUBMIT COPLETE' );
+						console.log( 'SUBMIT COMPLETE' );
 					})
 					.catch( e => {
 						console.log( 'SUBMIT ERROR', e );
@@ -214,7 +215,8 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 
 	private _getWebviewContent( webview: vscode.Webview ) {
 
-		const webViewUri = _getUri( webview, this._extensionUri, ['dist', 'webview.js']);
+		const webViewJSUri = _getUri( webview, this._extensionUri, ['dist', 'webview.js']);
+		const cssUri = _getUri( webview, this._extensionUri, ['media', 'styles.css']);
 		
 		const nonce = _getNonce();
 
@@ -225,27 +227,39 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 		const disabledTag = ( tag:string ) => 
 			disabled ? tag : '';
 		
+		
+		console.log(webViewJSUri, cssUri, nonce );
+		return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-${nonce}';">
+ <title>PlantUML + GPT</title>
+ <link  href="${cssUri}" rel="stylesheet" />
+</head>
+<body>
+ <vscode-panels aria-label="Default">
+  <vscode-panel-tab id="tab-1">Prompt</vscode-panel-tab>
+  <vscode-panel-tab id="tab-2">History</vscode-panel-tab>
+  <vscode-panel-view id="wiew-1">
+   <div id="prompt1">
+    <vscode-text-area id="prompt" cols="80" rows="10" ${disabledTag('readonly')} placeholder="${ disabled ? 'Please provides API KEY in extension settings' : 'Let chat with PlantUML diagram'}"></vscode-text-area>
+    <br>
+    <vscode-button id="submit" ${disabledTag('disabled')}>Submit</vscode-button>
+   </div>
+  </vscode-panel-view>
+  <vscode-panel-view id="view-2">
+		HISTORY
+  </vscode-panel-view>
+ </vscode-panels>
+ <script type="module" nonce="${nonce}" src="${webViewJSUri}"></script>
 
-		console.log(webViewUri, nonce );
-		return `<!DOCTYPE html>
-		<html lang="en">
-		<head>
-			<meta charset="UTF-8">
-			<meta name="viewport" content="width=device-width, initial-scale=1.0">
-			<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-${nonce}';">
-			<title>PlantUML + GPT</title>
-			
-		</head>
-	  <body>
-	  <vscode-text-area id="prompt" cols="80" rows="10" ${disabledTag('readonly')} placeholder="${ disabled ? 'Please provides API KEY in extension settings' : 'Let chat with PlantUML diagram'}">Prompt:</vscode-text-area>
-	  <br>
-	  <vscode-button id="submit" ${disabledTag('disabled')}>Submit</vscode-button>
-	  <script type="module" nonce="${nonce}" src="${webViewUri}"></script>
-	  </body>
-	  </html>`;
+</body>
+</html>`;
 	}
 	
-
 	private async _submitAndReplace( instruction: string ):Promise<void> {
 
 		const { apikey } = vscode.workspace.getConfiguration('plantuml-gpt');

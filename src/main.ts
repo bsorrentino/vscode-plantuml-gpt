@@ -1,31 +1,54 @@
-import { Button, TextArea, provideVSCodeDesignSystem, vsCodeButton, vsCodeTextArea } from "@vscode/webview-ui-toolkit";
+import { Button, 
+    TextArea, 
+    provideVSCodeDesignSystem, 
+    vsCodeButton, 
+    vsCodeTextArea,
+    vsCodeDataGrid, vsCodeDataGridRow, vsCodeDataGridCell,
+    vsCodePanels, vsCodePanelView, vsCodePanelTab,
+    vsCodeBadge
+} from "@vscode/webview-ui-toolkit";
 
 
 // toolkit registration 
-provideVSCodeDesignSystem().register(vsCodeButton(), vsCodeTextArea() );
+provideVSCodeDesignSystem().register(
+    vsCodeButton(), 
+    vsCodeTextArea(), 
+    vsCodeDataGrid(), 
+    vsCodeDataGridRow(), 
+    vsCodeDataGridCell(),
+    vsCodePanels(), 
+    vsCodePanelView(),
+    vsCodePanelTab(),
+    vsCodeBadge()
+    );
 
 // dispatch events
 
 const vscode = acquireVsCodeApi();
 
+const isStringValid = ( value: string|null ):boolean => value!==null && value.length>0;
+
+
 window.addEventListener("load", () => {
 
-    const submitButton = document.getElementById("submit") as Button;
+    const submitButton = document.getElementById("submit") as Button|null;
     const textArea = document.getElementById("prompt") as TextArea;
 
-    submitButton?.addEventListener("click", () => {
+    if( !(submitButton && textArea) ) { // GUARD
+        return;
+    }
+
+    submitButton.addEventListener("click", () => {
         vscode.postMessage({
             command: "prompt.submit",
             text: textArea.value,
             });
     });
 
-    textArea?.addEventListener("change",  () => {
-        vscode.postMessage({
-            command: "prompt.change",
-            text: textArea.value,
-            });
-    }); 
-
-
+    const validatePrompt = ( value:string|null ) =>        
+        submitButton.disabled = !isStringValid(value) ;
+    
+    textArea.addEventListener("input", (e:any) => validatePrompt( e.target.value ));
+ 
+    validatePrompt( textArea.value );
 });
