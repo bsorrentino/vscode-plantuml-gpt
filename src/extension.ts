@@ -141,7 +141,7 @@ const _getAllTextFromEditor = ( editor: vscode.TextEditor) => {
 
 	return null;
 
-}
+};
 
 
 /**
@@ -193,10 +193,10 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 			const { command, text } = data;
 
 			switch (command) {
-				case 'colorSelected':
-					vscode.window.activeTextEditor?.insertSnippet(new vscode.SnippetString(`#${data.value}`));
-					return;
-				case 'submit':
+				// case 'colorSelected':
+				// 	vscode.window.activeTextEditor?.insertSnippet(new vscode.SnippetString(`#${data.value}`));
+				// 	return;
+				case 'prompt.submit':
 
 					this._submitAndReplace( text )
 					.then( result => {
@@ -220,7 +220,7 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 
 		const { apikey } = vscode.workspace.getConfiguration('plantuml-gpt');
 
-		const disabled = !(apikey && apikey.length>0);
+		const disabled = !(apikey && apikey.length>0 );
 		
 		const disabledTag = ( tag:string ) => 
 			disabled ? tag : '';
