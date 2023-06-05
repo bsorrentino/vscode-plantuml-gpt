@@ -9,15 +9,23 @@ provideVSCodeDesignSystem().register(vsCodeButton(), vsCodeTextArea() );
 const vscode = acquireVsCodeApi();
 
 window.addEventListener("load", () => {
-    
+
     const submitButton = document.getElementById("submit") as Button;
     const textArea = document.getElementById("prompt") as TextArea;
 
     submitButton?.addEventListener("click", () => {
         vscode.postMessage({
-            command: "submit",
+            command: "prompt.submit",
             text: textArea.value,
-          });
+            });
     });
-  
+
+    textArea?.addEventListener("change",  () => {
+        vscode.postMessage({
+            command: "prompt.change",
+            text: textArea.value,
+            });
+    }); 
+
+
 });
