@@ -152,6 +152,8 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 
 	private _view?: vscode.WebviewView;
 	private _disposables: vscode.Disposable[] = [];
+	private _undoText:string|null = null;
+	private _promptHistory = Array<string>();
 
 	constructor( private readonly _extensionUri: vscode.Uri ) { 
 		console.log( 'PlantUMLGPTProvider', _extensionUri);
@@ -187,9 +189,21 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 		this._disposables.push( this._addMessageHandler(webview) );
 
 	}
+
+	private _undo() {
+
+		const { activeTextEditor } = vscode.window;
+		if( activeTextEditor && this._undoText) {
+			_replaceTextInEditor( activeTextEditor, this._undoText );
+			this._undoText = null;
+
+		}
+
+	}
   
 	private _addMessageHandler( webview: vscode.Webview  ) {
 		return webview.onDidReceiveMessage(data => {
+
 			console.log( 'onDidReceiveMessage', data);
 
 			const { command, text } = data;
@@ -202,12 +216,17 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 					this._submitAndReplace( text )
 					.then( result => {
 						console.log( 'SUBMIT COMPLETE' );
+						this._undoText = result.input;
 					})
 					.catch( e => {
 						console.log( 'SUBMIT ERROR', e );
 					});
 					return;
-			}
+				case 'prompt.undo':
+
+					this._undo();
+					return;
+				}
 
 		}, undefined, this._disposables);
 
@@ -222,13 +241,14 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 
 		const { apikey } = vscode.workspace.getConfiguration('plantuml-gpt');
 
-		const disabled = !(apikey && apikey.length>0 );
-		
-		const disabledTag = ( tag:string ) => 
-			disabled ? tag : '';
-		
-		
-		console.log(webViewJSUri, cssUri, nonce );
+		const submitDisabled = !apikey;
+		const undoDisabled = !this._undoText;
+
+		const submitDisabledTag = ( tag:string ) => submitDisabled ? tag : '';
+		const undoDisabledTag = ( tag:string ) => undoDisabled ? tag : '';
+
+		// console.log(webViewJSUri, cssUri, nonce );
+		 
 		return `
 <!DOCTYPE html>
 <html lang="en">
@@ -242,13 +262,13 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 <body>
  <vscode-panels aria-label="Default">
   <vscode-panel-tab id="tab-1">Prompt</vscode-panel-tab>
-  <vscode-panel-tab id="tab-2">History</vscode-panel-tab>
+  <vscode-panel-tab id="tab-2">History<vscode-badge>${this._promptHistory.length}</vscode-badge></vscode-panel-tab>
   <vscode-panel-view id="wiew-1">
    <div id="prompt_container">
-    <vscode-text-area id="prompt" cols="80" rows="10" ${disabledTag('readonly')} placeholder="${ disabled ? 'Please provides API KEY in extension settings' : 'Let chat with PlantUML diagram'}"></vscode-text-area>
+    <vscode-text-area id="prompt" cols="80" rows="10" ${submitDisabledTag('readonly')} placeholder="${ submitDisabled ? 'Please provides API KEY in extension settings' : 'Let chat with PlantUML diagram'}"></vscode-text-area>
     <div id="command">
-		<vscode-button id="undo" ${disabledTag('disabled')}>Undo</vscode-button>
-		<vscode-button id="submit" ${disabledTag('disabled')}>Submit</vscode-button>
+		<vscode-button id="undo" ${undoDisabledTag('disabled')}>Undo</vscode-button>
+		<vscode-button id="submit" ${submitDisabledTag('disabled')}>Submit</vscode-button>
 	</div>
    </div>
   </vscode-panel-view>
@@ -262,7 +282,7 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 </html>`;
 	}
 	
-	private async _submitAndReplace( instruction: string ):Promise<void> {
+	private async _submitAndReplace( instruction: string ):Promise<{input:string|null, result?:string|null}> {
 
 		const { apikey } = vscode.workspace.getConfiguration('plantuml-gpt');
 
@@ -304,6 +324,8 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 			if( result ) {
 				_replaceTextInEditor( activeTextEditor, result );
 			}
+
+			return { input, result };
 		}
 		catch( error:any ) {
 			if( error.response ) {
