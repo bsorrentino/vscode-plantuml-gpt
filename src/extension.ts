@@ -244,10 +244,12 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
   <vscode-panel-tab id="tab-1">Prompt</vscode-panel-tab>
   <vscode-panel-tab id="tab-2">History</vscode-panel-tab>
   <vscode-panel-view id="wiew-1">
-   <div id="prompt1">
+   <div id="prompt_container">
     <vscode-text-area id="prompt" cols="80" rows="10" ${disabledTag('readonly')} placeholder="${ disabled ? 'Please provides API KEY in extension settings' : 'Let chat with PlantUML diagram'}"></vscode-text-area>
-    <br>
-    <vscode-button id="submit" ${disabledTag('disabled')}>Submit</vscode-button>
+    <div id="command">
+		<vscode-button id="undo" ${disabledTag('disabled')}>Undo</vscode-button>
+		<vscode-button id="submit" ${disabledTag('disabled')}>Submit</vscode-button>
+	</div>
    </div>
   </vscode-panel-view>
   <vscode-panel-view id="view-2">
