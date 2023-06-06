@@ -100,9 +100,9 @@ const _getUri = (webview: vscode.Webview, extensionUri: vscode.Uri, pathList: st
  * You should also update the content security policy of your webview to only allow scripts that have a specific nonce
  * 
  * @link https://github.com/microsoft/vscode-webview-ui-toolkit/blob/main/docs/getting-started.md#enable-webview-scripts-and-improve-security
- * @return  {[string]}  nonce value
+ * @return  {string}  nonce value
  */
-const _getNonce = () => {
+const _getNonce = (): string => {
 	let text = "";
 	const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 	for (let i = 0; i < 32; i++) {
