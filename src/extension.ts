@@ -29,7 +29,7 @@ export async function activate(context: vscode.ExtensionContext) {
 export function deactivate() {}
 
 const _setActive = ( value:boolean ) => 
-	vscode.commands.executeCommand('setContext', 'plantuml-gpt.active', value );
+	vscode.commands.executeCommand('setContext', 'plantuml-gpt.active', value ).then( () => value );
 
 
 const _registerCommandOpenPanel = () => 
@@ -37,7 +37,7 @@ const _registerCommandOpenPanel = () =>
 	
 		const { apikey } = vscode.workspace.getConfiguration('plantuml-gpt');
 
-		if( apikey && apikey.length>0 ) {
+		if( apikey ) {
 			return _setActive( true );
 		}
 
@@ -69,8 +69,6 @@ const _detectEditorLanguage = (context: vscode.ExtensionContext) =>
 
 		const languageId = _getCurrentEditorLanguage( editor );
 
-		_setActive( languageId === 'plantuml');
-	
 		if (languageId ) {      
 			console.log( `The current editor language is ${languageId}.` );
 			// vscode.window.showInformationMessage(`The current editor language is ${languageId}.`);
@@ -79,6 +77,13 @@ const _detectEditorLanguage = (context: vscode.ExtensionContext) =>
 			console.log( 'No active text editor found.' );
 			// vscode.window.showWarningMessage('No active text editor found.');
 		}
+
+		_setActive( languageId === 'plantuml' ).then( active => {
+			if( active ) {
+				vscode.commands.executeCommand("plantuml-gpt.view.focus");
+			}
+		});
+
     });
 
 /**
@@ -88,6 +93,7 @@ const _registerPlantUMLViewProvider = (context: vscode.ExtensionContext) => {
 	const provider = new PlantUMLGPTProvider(context.extensionUri);
 
 	return vscode.window.registerWebviewViewProvider(PlantUMLGPTProvider.viewId, provider);
+	
 };
 
 /**
@@ -150,25 +156,26 @@ const _getAllTextFromEditor = ( editor: vscode.TextEditor) => {
 class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 	public static readonly viewId = 'plantuml-gpt.view';
 
-	private _view?: vscode.WebviewView;
+	private _view: vscode.WebviewView|null = null;
 	private _disposables: vscode.Disposable[] = [];
 	private _undoText:string|null = null;
 	private _promptHistory = Array<string>();
 
 	constructor( private readonly _extensionUri: vscode.Uri ) { 
-		console.log( 'PlantUMLGPTProvider', _extensionUri);
+		// console.log( 'PlantUMLGPTProvider', _extensionUri);	
 	}
 
 	public resolveWebviewView(	webviewView: vscode.WebviewView, 
 								context: vscode.WebviewViewResolveContext<unknown>, 
 								token: vscode.CancellationToken): void | Thenable<void> 
 	{
-		// console.log( 'PlantUMLGPTProvider', 'resolveWebviewView');
+		console.log( 'PlantUMLGPTProvider', 'resolveWebviewView');
 
 		this._view = webviewView;
 
 		this._view.onDidDispose(() => {
-			console.log( 'dispose()');
+			console.log( 'view.dispose()');
+			this._view = null;
 		}, null, this._disposables);
 
 		const { webview } = webviewView;
@@ -253,14 +260,14 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 		const undoDisabledTag = ( tag:string ) => undoDisabled ? tag : '';
 
 		// console.log(webViewJSUri, cssUri, nonce );
-		 console.log( this._promptHistory );
+		console.log(  webview.cspSource );
 		return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
  <meta charset="UTF-8">
  <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-${nonce}';">
+ <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src ${webview.cspSource}; style-src ${webview.cspSource} 'nonce-${nonce}';">
  <title>PlantUML + GPT</title>
  <link  href="${cssUri}" rel="stylesheet" />
 </head>
