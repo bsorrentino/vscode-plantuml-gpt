@@ -201,22 +201,27 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 
 	}
   
+	private _sendMessageToWebView( command: string, data:object ) {
+		this._view?.webview.postMessage( { command: command, data: data} );
+	}
+
 	private _addMessageHandler( webview: vscode.Webview  ) {
 		return webview.onDidReceiveMessage(data => {
 
 			console.log( 'onDidReceiveMessage', data);
 
-			const { command, text } = data;
+			const { command, text:prompt } = data;
 
 			switch (command) {
 				// case 'colorSelected':
 				// 	vscode.window.activeTextEditor?.insertSnippet(new vscode.SnippetString(`#${data.value}`));
 				// 	return;
 				case 'prompt.submit':
-					this._submitAndReplace( text )
-					.then( result => {
-						console.log( 'SUBMIT COMPLETE' );
+					this._submitAndReplace( prompt )
+					.then( result => {			
 						this._undoText = result.input;
+						this._promptHistory.push( prompt );
+						this._sendMessageToWebView( 'history.update', this._promptHistory);
 					})
 					.catch( e => {
 						console.log( 'SUBMIT ERROR', e );
@@ -248,7 +253,7 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 		const undoDisabledTag = ( tag:string ) => undoDisabled ? tag : '';
 
 		// console.log(webViewJSUri, cssUri, nonce );
-		 
+		 console.log( this._promptHistory );
 		return `
 <!DOCTYPE html>
 <html lang="en">
@@ -262,7 +267,7 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 <body>
  <vscode-panels aria-label="Default">
   <vscode-panel-tab id="tab-1">Prompt</vscode-panel-tab>
-  <vscode-panel-tab id="tab-2">History<vscode-badge>${this._promptHistory.length}</vscode-badge></vscode-panel-tab>
+  <vscode-panel-tab id="tab-2">History<vscode-badge id="history_badge">${this._promptHistory.length}</vscode-badge></vscode-panel-tab>
   <vscode-panel-view id="wiew-1">
    <div id="prompt_container">
     <vscode-text-area id="prompt" cols="80" rows="10" ${submitDisabledTag('readonly')} placeholder="${ submitDisabled ? 'Please provides API KEY in extension settings' : 'Let chat with PlantUML diagram'}"></vscode-text-area>
@@ -273,7 +278,16 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
    </div>
   </vscode-panel-view>
   <vscode-panel-view id="view-2">
-		HISTORY
+  	<table id="history_prompt">
+		<thead>
+			<tr>
+				<th>Prompt</th>
+				<th>Actions</th>
+			</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
   </vscode-panel-view>
  </vscode-panels>
  <script type="module" nonce="${nonce}" src="${webViewJSUri}"></script>

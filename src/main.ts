@@ -3,9 +3,11 @@ import { Button,
     provideVSCodeDesignSystem, 
     vsCodeButton, 
     vsCodeTextArea,
-    vsCodeDataGrid, vsCodeDataGridRow, vsCodeDataGridCell,
+    // vsCodeDataGrid, vsCodeDataGridRow, vsCodeDataGridCell,
     vsCodePanels, vsCodePanelView, vsCodePanelTab,
-    vsCodeBadge
+    vsCodeBadge,
+    Badge,
+    // DataGrid
 } from "@vscode/webview-ui-toolkit";
 
 
@@ -13,9 +15,9 @@ import { Button,
 provideVSCodeDesignSystem().register(
     vsCodeButton(), 
     vsCodeTextArea(), 
-    vsCodeDataGrid(), 
-    vsCodeDataGridRow(), 
-    vsCodeDataGridCell(),
+    // vsCodeDataGrid(), 
+    // vsCodeDataGridRow(), 
+    // vsCodeDataGridCell(),
     vsCodePanels(), 
     vsCodePanelView(),
     vsCodePanelTab(),
@@ -34,10 +36,38 @@ window.addEventListener("load", () => {
     const submitButton = document.getElementById("submit") as Button|null;
     const undoButton = document.getElementById("undo") as Button|null;
     const textArea = document.getElementById("prompt") as TextArea;
+    const historyPrompt = document.getElementById("history_prompt") as HTMLTableElement|null;
+    const historyBadge = document.getElementById("history_badge") as Badge|null;
 
-    if( !(submitButton && textArea && undoButton ) ) { // GUARD
+    if( !(submitButton && textArea && undoButton && historyPrompt && historyBadge ) ) { // GUARD
         return;
     }
+
+    window.addEventListener("message", ( event ) => {
+
+        const { command, data:prompts } = event.data as  { command:string, data: Array<string>};
+
+        switch( command ) {
+        case 'history.update':
+            const tbody = historyPrompt.querySelector( 'tbody' ) ;
+            if( tbody ) {
+                
+                const html = prompts.map( p => 
+                `<tr>
+                <td>${p}</td>
+                <td>xxx</td>
+                </tr>`).join('\n');
+    
+                // console.log( html );
+
+                tbody.innerHTML = html;
+    
+                historyBadge.innerText = `${prompts.length}`;
+            }
+            return;
+        }
+        
+    });
 
     submitButton.addEventListener("click", () => 
         vscode.postMessage({
@@ -56,4 +86,7 @@ window.addEventListener("load", () => {
     textArea.addEventListener("input", (e:any) => validatePrompt( e.target.value ));
  
     validatePrompt( textArea.value );
+
+    // Populate grid with data
+
 });
