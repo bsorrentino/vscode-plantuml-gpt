@@ -159,7 +159,7 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 	private _view: vscode.WebviewView|null = null;
 	private _disposables: vscode.Disposable[] = [];
 	private _undoText:string|null = null;
-	// private _promptHistory =  Array<string>(50).fill("DESCRIPTION");
+	// private _promptHistory =  Array<string>(10).fill("Prompt ahgsdgasdfasdfahgfdagsdfahgsdfahgfsdagfghfadsfahdgf");
 	private _promptHistory = Array<string>();
 
 	constructor( private readonly _extensionUri: vscode.Uri ) { 
@@ -189,12 +189,18 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 				// this._extensionUri,
 				vscode.Uri.joinPath(this._extensionUri, 'media'),
 				vscode.Uri.joinPath(this._extensionUri, 'dist'),
+				vscode.Uri.joinPath(this._extensionUri, 'node_modules', '@vscode/codicons', 'dist'),
 			],
 		};
 
 		webview.html = this._getWebviewContent(webviewView.webview);
 
 		this._disposables.push( this._addMessageHandler(webview) );
+
+		this._sendMessageToWebView( 'history.update', {
+			tbody: this._getHistoryBodyContent(),
+			length: this._promptHistory.length
+		});
 
 	}
 
@@ -242,7 +248,14 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 
 					this._undo();
 					return;
-				}
+				case 'history.replay':
+					return;
+				case 'history.delete':
+					return;
+				case 'history.save':
+					return;
+			}
+
 
 		}, undefined, this._disposables);
 
@@ -250,10 +263,20 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 
 	private _getHistoryBodyContent() {
 
-		return this._promptHistory.map( p => 
+		return this._promptHistory.map( (p,i) => 
 			`<tr>
 			<td>${p}</td>
-			<td>xxx</td>
+			<td>
+			<vscode-button class="history-command" data-command="history.replay" data-index="${i}" appearance="icon" aria-label="Reply">
+				<span class="codicon codicon-reply"></span>
+			</vscode-button>
+			<vscode-button class="history-command"  data-command="history.delete" data-index="${i}" appearance="icon" aria-label="Trash">
+				<span class="codicon codicon-trash"></span>
+			</vscode-button>
+			<vscode-button class="history-command"  data-command="history.save" data-index="${i}" appearance="icon" aria-label="Save">
+				<span class="codicon codicon-save"></span>
+			</vscode-button>
+			</td>
 			</tr>`).join('\n');
 
 	}
@@ -262,7 +285,8 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 
 		const webViewJSUri = _getUri( webview, this._extensionUri, ['dist', 'webview.js']);
 		const cssUri = _getUri( webview, this._extensionUri, ['media', 'styles.css']);
-		
+		const codiconsUri = _getUri(webview, this._extensionUri, ['node_modules', '@vscode/codicons', 'dist', 'codicon.css']);
+
 		const nonce = _getNonce();
 
 		const { apikey } = vscode.workspace.getConfiguration('plantuml-gpt');
@@ -282,9 +306,10 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 <head>
  <meta charset="UTF-8">
  <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src ${webview.cspSource}; style-src ${webview.cspSource} 'nonce-${nonce}';">
+ <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src ${webview.cspSource}; font-src  ${webview.cspSource} ; style-src ${webview.cspSource} 'nonce-${nonce}';">
  <title>PlantUML + GPT</title>
- <link  href="${cssUri}" rel="stylesheet" />
+ <link href="${cssUri}" rel="stylesheet" />
+ <link href="${codiconsUri}" rel="stylesheet" />
 </head>
 <body>
  <vscode-panels aria-label="Default">
@@ -309,7 +334,6 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 				</tr>
 			</thead>
 			<tbody>
-				${ this._getHistoryBodyContent() }
 			</tbody>
 		</table>
 	</div>
