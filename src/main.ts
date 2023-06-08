@@ -45,22 +45,14 @@ window.addEventListener("load", () => {
 
     window.addEventListener("message", ( event ) => {
 
-        const { command, data:prompts } = event.data as  { command:string, data: Array<string>};
+        const { command, data:prompts } = event.data as  { command:string, data: { tbody: string, length: number} };
 
         switch( command ) {
         case 'history.update':
             const tbody = historyPrompt.querySelector( 'tbody' ) ;
             if( tbody ) {
                 
-                const html = prompts.map( p => 
-                `<tr>
-                <td>${p}</td>
-                <td>xxx</td>
-                </tr>`).join('\n');
-    
-                // console.log( html );
-
-                tbody.innerHTML = html;
+                tbody.innerHTML = prompts.tbody;
     
                 historyBadge.innerText = `${prompts.length}`;
             }

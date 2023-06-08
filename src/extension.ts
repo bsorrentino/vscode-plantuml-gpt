@@ -159,6 +159,7 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 	private _view: vscode.WebviewView|null = null;
 	private _disposables: vscode.Disposable[] = [];
 	private _undoText:string|null = null;
+	// private _promptHistory =  Array<string>(50).fill("DESCRIPTION");
 	private _promptHistory = Array<string>();
 
 	constructor( private readonly _extensionUri: vscode.Uri ) { 
@@ -208,7 +209,7 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 
 	}
   
-	private _sendMessageToWebView( command: string, data:object ) {
+	private _sendMessageToWebView<T>( command: string, data:T ) {
 		this._view?.webview.postMessage( { command: command, data: data} );
 	}
 
@@ -228,7 +229,10 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 					.then( result => {			
 						this._undoText = result.input;
 						this._promptHistory.push( prompt );
-						this._sendMessageToWebView( 'history.update', this._promptHistory);
+						this._sendMessageToWebView( 'history.update', {
+							tbody: this._getHistoryBodyContent(),
+							length: this._promptHistory.length
+						});
 					})
 					.catch( e => {
 						console.log( 'SUBMIT ERROR', e );
@@ -241,6 +245,16 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 				}
 
 		}, undefined, this._disposables);
+
+	}
+
+	private _getHistoryBodyContent() {
+
+		return this._promptHistory.map( p => 
+			`<tr>
+			<td>${p}</td>
+			<td>xxx</td>
+			</tr>`).join('\n');
 
 	}
 
@@ -260,7 +274,8 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 		const undoDisabledTag = ( tag:string ) => undoDisabled ? tag : '';
 
 		// console.log(webViewJSUri, cssUri, nonce );
-		console.log(  webview.cspSource );
+		// console.log(  webview.cspSource );
+
 		return `
 <!DOCTYPE html>
 <html lang="en">
@@ -285,16 +300,19 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
    </div>
   </vscode-panel-view>
   <vscode-panel-view id="view-2">
-  	<table id="history_prompt">
-		<thead>
-			<tr>
-				<th>Prompt</th>
-				<th>Actions</th>
-			</tr>
-		</thead>
-		<tbody>
-		</tbody>
-	</table>
+	<div class="table-scroll">
+		<table id="history_prompt">
+			<thead>
+				<tr>
+					<th>Prompt</th>
+					<th>Actions</th>
+				</tr>
+			</thead>
+			<tbody>
+				${ this._getHistoryBodyContent() }
+			</tbody>
+		</table>
+	</div>
   </vscode-panel-view>
  </vscode-panels>
  <script type="module" nonce="${nonce}" src="${webViewJSUri}"></script>
