@@ -41,8 +41,15 @@ window.addEventListener("load", () => {
     const historyPrompt = document.getElementById("history_prompt") as HTMLTableElement|null;
     const historyBadge = document.getElementById("history_badge") as Badge|null;
     const panels = document.getElementById("panels");
+    const progressRing = document.getElementById("progress-ring");
 
-    if( !(submitButton && textArea && undoButton && historyPrompt && historyBadge && panels ) ) { // GUARD
+    if( !(submitButton && 
+        textArea && 
+        undoButton && 
+        historyPrompt && 
+        historyBadge && 
+        panels && 
+        progressRing ) ) { // GUARD
         return;
     }
 
@@ -72,6 +79,8 @@ window.addEventListener("load", () => {
         switch( command ) {
         case 'history.update':
         {
+            undoButton.disabled = false;
+
             const { data:prompts } = event.data as { data: { tbody: string, length: number} };
             
             const tbody = historyPrompt.querySelector( 'tbody' ) ;
@@ -102,6 +111,20 @@ window.addEventListener("load", () => {
             if( validatePrompt( prompt ) ) {
                 textArea.value = prompt;
                 panels.setAttribute("activeid", "tab-prompt");
+            }
+            return;
+        }
+        case 'prompt.submit':
+        {
+            const { data:progress } = event.data;
+            if( progress ) {
+                undoButton.disabled = true;
+                submitButton.disabled = true;
+                progressRing.classList.remove('hide-progress');
+            }
+            else {
+                progressRing.classList.add('hide-progress');
+                submitButton.disabled = false;
             }
             return;
         }

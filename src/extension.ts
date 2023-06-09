@@ -243,6 +243,8 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 				// 	vscode.window.activeTextEditor?.insertSnippet(new vscode.SnippetString(`#${data.value}`));
 				// 	return;
 				case 'prompt.submit':
+
+					this._sendMessageToWebView( 'prompt.submit', true );
 					this._submitAndReplace( text )
 					.then( result => {			
 						this._undoText = result.input;
@@ -252,9 +254,11 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 							length: this._promptHistory.length
 						});
 					})
-					.catch( e => {
-						console.log( 'SUBMIT ERROR', e );
-					});
+					.catch( e => 
+						console.log( 'SUBMIT ERROR', e )
+					).finally( () => 
+						this._sendMessageToWebView( 'prompt.submit', false )
+					);
 					return;
 				case 'prompt.undo':
 
@@ -295,7 +299,7 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 		return this._promptHistory.map( (p,i) => 
 			`<tr>
 			<td>${p}</td>
-			<td>
+			<td class="nowrap">
 			<vscode-button class="history-command" data-command="history.replace" data-index="${i}" appearance="icon" aria-label="Replace">
 				<span class="codicon codicon-reply"></span>
 			</vscode-button>
@@ -350,6 +354,7 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
     <div id="command">
 		<vscode-button id="undo" ${undoDisabledTag('disabled')}>Undo</vscode-button>
 		<vscode-button id="submit" ${submitDisabledTag('disabled')}>Submit</vscode-button>
+		<vscode-progress-ring id="progress-ring" class="hide-progress"></vscode-progress-ring>
 	</div>
    </div>
   </vscode-panel-view>
