@@ -6,6 +6,7 @@ import { Button,
     // vsCodeDataGrid, vsCodeDataGridRow, vsCodeDataGridCell,
     vsCodePanels, vsCodePanelView, vsCodePanelTab,
     vsCodeBadge,
+    vsCodeProgressRing,
     Badge,
     // DataGrid
 } from "@vscode/webview-ui-toolkit";
@@ -21,7 +22,8 @@ provideVSCodeDesignSystem().register(
     vsCodePanels(), 
     vsCodePanelView(),
     vsCodePanelTab(),
-    vsCodeBadge()
+    vsCodeBadge(),
+    vsCodeProgressRing()
     );
 
 // dispatch events
@@ -38,8 +40,9 @@ window.addEventListener("load", () => {
     const textArea = document.getElementById("prompt") as TextArea;
     const historyPrompt = document.getElementById("history_prompt") as HTMLTableElement|null;
     const historyBadge = document.getElementById("history_badge") as Badge|null;
+    const panels = document.getElementById("panels");
 
-    if( !(submitButton && textArea && undoButton && historyPrompt && historyBadge ) ) { // GUARD
+    if( !(submitButton && textArea && undoButton && historyPrompt && historyBadge && panels ) ) { // GUARD
         return;
     }
 
@@ -64,10 +67,13 @@ window.addEventListener("load", () => {
 
     window.addEventListener("message", ( event ) => {
 
-        const { command, data:prompts } = event.data as  { command:string, data: { tbody: string, length: number} };
+        const { command } = event.data;
 
         switch( command ) {
         case 'history.update':
+        {
+            const { data:prompts } = event.data as { data: { tbody: string, length: number} };
+            
             const tbody = historyPrompt.querySelector( 'tbody' ) ;
             if( tbody ) {
                 
@@ -90,6 +96,18 @@ window.addEventListener("load", () => {
             }
             return;
         }
+        case 'prompt.replace':
+        {
+            const { data:prompt } = event.data;
+            if( validatePrompt( prompt ) ) {
+                textArea.value = prompt;
+                panels.setAttribute("activeid", "tab-prompt");
+            }
+            return;
+        }
+            
+            
+        }
         
     });
 
@@ -104,8 +122,11 @@ window.addEventListener("load", () => {
         vscode.postMessage({ command:"prompt.undo" }) );
 
 
-    const validatePrompt = ( value:string|null ) =>        
-        submitButton.disabled = !isStringValid(value) ;
+    const validatePrompt = ( value:string|null ) => {
+        const isValid = isStringValid(value);
+        submitButton.disabled = !isValid;
+        return isValid;
+    };        
     
     textArea.addEventListener("input", (e:any) => validatePrompt( e.target.value ));
  

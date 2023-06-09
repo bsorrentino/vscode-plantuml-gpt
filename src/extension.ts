@@ -8,13 +8,24 @@ import { Configuration, OpenAIApi } from 'openai';
 // Your extension is activated the very first time the command is executed
 export async function activate(context: vscode.ExtensionContext) {
 
-	const languageId = vscode.window.activeTextEditor?.document?.languageId;
+	const { activeTextEditor } = vscode.window;
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log(`Congratulations, your extension "plantuml-gpt" is now active! - languageId: ${languageId}`);
+	if( activeTextEditor ) {
 
-	_setActive( languageId==='plantuml' );
+		const languageId = activeTextEditor.document?.languageId;
+
+		_setActive( languageId==='plantuml' ).then( active => {
+			if( active ) {
+				vscode.commands.executeCommand("plantuml-gpt.view.focus");
+			}
+		});
+
+		// Use the console to output diagnostic information (console.log) and errors (console.error)
+		// This line of code will only be executed once when your extension is activated
+		console.log(`Congratulations, your extension "plantuml-gpt" is now active! - languageId: ${languageId}`);
+
+	}
+
 
 	// context.subscriptions.push(_registerCommandOpenPanel());
 
@@ -23,6 +34,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	// const langs = await vscode.languages.getLanguages();
 	context.subscriptions.push(_detectEditorLanguage(context));
 	
+
 }
 
 // This method is called when your extension is deactivated
@@ -224,17 +236,17 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 
 			console.log( 'onDidReceiveMessage', data);
 
-			const { command, text:prompt } = data;
+			const { command, text } = data;
 
 			switch (command) {
 				// case 'colorSelected':
 				// 	vscode.window.activeTextEditor?.insertSnippet(new vscode.SnippetString(`#${data.value}`));
 				// 	return;
 				case 'prompt.submit':
-					this._submitAndReplace( prompt )
+					this._submitAndReplace( text )
 					.then( result => {			
 						this._undoText = result.input;
-						this._promptHistory.push( prompt );
+						this._promptHistory.push( text );
 						this._sendMessageToWebView( 'history.update', {
 							tbody: this._getHistoryBodyContent(),
 							length: this._promptHistory.length
@@ -247,11 +259,28 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 				case 'prompt.undo':
 
 					this._undo();
+					
 					return;
-				case 'history.replay':
+				case 'history.replace':
+				{	
+					const index = parseInt(text);
+					if( index >= 0 && index < this._promptHistory.length) {
+						this._sendMessageToWebView( 'prompt.replace', this._promptHistory[index]	);
+					}
 					return;
+				}
 				case 'history.delete':
+				{
+					const index = parseInt(text);
+					if( index >= 0 && index < this._promptHistory.length) {
+						this._promptHistory.splice(index, 1);	
+						this._sendMessageToWebView( 'history.update', {
+							tbody: this._getHistoryBodyContent(),
+							length: this._promptHistory.length
+						});
+					}
 					return;
+				}
 				case 'history.save':
 					return;
 			}
@@ -267,10 +296,10 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 			`<tr>
 			<td>${p}</td>
 			<td>
-			<vscode-button class="history-command" data-command="history.replay" data-index="${i}" appearance="icon" aria-label="Reply">
+			<vscode-button class="history-command" data-command="history.replace" data-index="${i}" appearance="icon" aria-label="Replace">
 				<span class="codicon codicon-reply"></span>
 			</vscode-button>
-			<vscode-button class="history-command"  data-command="history.delete" data-index="${i}" appearance="icon" aria-label="Trash">
+			<vscode-button class="history-command"  data-command="history.delete" data-index="${i}" appearance="icon" aria-label="Delete">
 				<span class="codicon codicon-trash"></span>
 			</vscode-button>
 			<vscode-button class="history-command"  data-command="history.save" data-index="${i}" appearance="icon" aria-label="Save">
@@ -312,9 +341,9 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
  <link href="${codiconsUri}" rel="stylesheet" />
 </head>
 <body>
- <vscode-panels aria-label="Default">
-  <vscode-panel-tab id="tab-1">Prompt</vscode-panel-tab>
-  <vscode-panel-tab id="tab-2">History<vscode-badge id="history_badge">${this._promptHistory.length}</vscode-badge></vscode-panel-tab>
+ <vscode-panels id="panels" aria-label="Default">
+  <vscode-panel-tab id="tab-prompt">Prompt</vscode-panel-tab>
+  <vscode-panel-tab id="tab-history">History<vscode-badge id="history_badge">${this._promptHistory.length}</vscode-badge></vscode-panel-tab>
   <vscode-panel-view id="wiew-1">
    <div id="prompt_container">
     <vscode-text-area id="prompt" cols="80" rows="10" ${submitDisabledTag('readonly')} placeholder="${ submitDisabled ? 'Please provides API KEY in extension settings' : 'Let chat with PlantUML diagram'}"></vscode-text-area>
