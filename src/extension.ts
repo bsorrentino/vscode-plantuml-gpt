@@ -3,10 +3,58 @@
 import * as vscode from 'vscode';
 import { Configuration, OpenAIApi } from 'openai';
 
+// [How to use the VSCode local storage API](https://www.chrishasz.com/blog/2020/07/28/vscode-how-to-use-local-storage-api/)
+class LocalStorageService {
+
+	constructor(private storage: vscode.Memento) { 
+
+		if( 'setKeysForSync' in storage ) {
+
+			const global = storage as  { setKeysForSync(keys: readonly string[]): void; };
+
+			global.setKeysForSync( [ 'prompts' ] );
+		}
+	}   
+
+	public getPrompts(): Array<string> {
+		return this._getValue<Array<string>>( 'prompts' ) ?? [];
+	}
+
+	public addPrompt( prompt: string ) {
+
+		const prompts = this.getPrompts();
+
+		prompts.push( prompt );
+
+		this._setValue( 'prompts', prompts );
+	}
+
+	public removePromptAtIndex( index: number ): string[]|null {
+		const prompts = this.getPrompts();
+		if( index < 0 || index >= prompts.length ) {
+			return null;
+		}
+		const removedElements = prompts.splice(index, 1);
+		
+		this._setValue( 'prompts', prompts );
+
+		return removedElements;
+	}
+
+	private _getValue<T>(key : string) : T | null {
+		return this.storage.get<T | null>(key, null);
+	}
+	private _setValue<T>(key : string, value : T ){
+		this.storage.update(key, value );
+	}
+}
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export async function activate(context: vscode.ExtensionContext) {
+
+	// console.log( "storageUri", context.workspaceState , "globalStorageUri", context.globalState );
+
 
 	const { activeTextEditor } = vscode.window;
 
@@ -102,7 +150,10 @@ const _detectEditorLanguage = (context: vscode.ExtensionContext) =>
  * register view provider
  */
 const _registerPlantUMLViewProvider = (context: vscode.ExtensionContext) => {
-	const provider = new PlantUMLGPTProvider(context.extensionUri);
+
+	const storage = new LocalStorageService( context.globalState );
+
+	const provider = new PlantUMLGPTProvider(context.extensionUri, storage);
 
 	return vscode.window.registerWebviewViewProvider(PlantUMLGPTProvider.viewId, provider);
 	
@@ -171,12 +222,14 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 	private _view: vscode.WebviewView|null = null;
 	private _disposables: vscode.Disposable[] = [];
 	private _undoText:string|null = null;
-	// private _promptHistory =  Array<string>(10).fill("Prompt ahgsdgasdfasdfahgfdagsdfahgsdfahgfsdagfghfadsfahdgf");
-	private _promptHistory = Array<string>();
+	private _promptHistory:Array<string>;
 
-	constructor( private readonly _extensionUri: vscode.Uri ) { 
+	constructor( private readonly _extensionUri: vscode.Uri, private storage: LocalStorageService ) { 
 		// console.log( 'PlantUMLGPTProvider', _extensionUri);	
-	}
+
+		this._promptHistory = storage.getPrompts();
+		// _promptHistory.concat(  Array<string>(10).fill("Prompt ahgsdgasdfasdfahgfdagsdfahgsdfahgfsdagfghfadsfahdgf") );
+}
 
 	public resolveWebviewView(	webviewView: vscode.WebviewView, 
 								context: vscode.WebviewViewResolveContext<unknown>, 
@@ -278,6 +331,7 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 					const index = parseInt(text);
 					if( index >= 0 && index < this._promptHistory.length) {
 						this._promptHistory.splice(index, 1);	
+						this.storage.removePromptAtIndex( index );
 						this._sendMessageToWebView( 'history.update', {
 							tbody: this._getHistoryBodyContent(),
 							length: this._promptHistory.length
@@ -286,7 +340,13 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 					return;
 				}
 				case 'history.save':
+				{
+					const index = parseInt(text);
+					if( index >= 0 && index < this._promptHistory.length) {
+						this.storage.addPrompt( this._promptHistory[index] );
+					}
 					return;
+				}
 			}
 
 
