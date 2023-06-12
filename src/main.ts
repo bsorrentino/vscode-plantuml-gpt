@@ -37,14 +37,14 @@ window.addEventListener("load", () => {
 
     const submitButton = document.getElementById("submit") as Button|null;
     const undoButton = document.getElementById("undo") as Button|null;
-    const textArea = document.getElementById("prompt") as TextArea;
+    const submitText = document.getElementById("prompt") as TextArea;
     const historyPrompt = document.getElementById("history_prompt") as HTMLTableElement|null;
     const historyBadge = document.getElementById("history_badge") as Badge|null;
     const panels = document.getElementById("panels");
     const progressRing = document.getElementById("progress-ring");
 
     if( !(submitButton && 
-        textArea && 
+        submitText && 
         undoButton && 
         historyPrompt && 
         historyBadge && 
@@ -72,6 +72,10 @@ window.addEventListener("load", () => {
     };   
 
 
+    const selectSubmitText = () => {
+        (<any>submitText).select();
+    };
+    
     window.addEventListener("message", ( event ) => {
 
         const { command } = event.data;
@@ -109,7 +113,7 @@ window.addEventListener("load", () => {
         {
             const { data:prompt } = event.data;
             if( validatePrompt( prompt ) ) {
-                textArea.value = prompt;
+                submitText.value = prompt;
                 panels.setAttribute("activeid", "tab-prompt");
             }
             return;
@@ -121,6 +125,7 @@ window.addEventListener("load", () => {
                 undoButton.disabled = true;
                 submitButton.disabled = true;
                 progressRing.classList.remove('hide-progress');
+                selectSubmitText();
             }
             else {
                 progressRing.classList.add('hide-progress');
@@ -137,7 +142,7 @@ window.addEventListener("load", () => {
     submitButton.addEventListener("click", () => 
         vscode.postMessage({
             command: "prompt.submit",
-            text: textArea.value,
+            text: submitText.value,
             })
     );
 
@@ -151,9 +156,9 @@ window.addEventListener("load", () => {
         return isValid;
     };        
     
-    textArea.addEventListener("input", (e:any) => validatePrompt( e.target.value ));
+    submitText.addEventListener("input", (e:any) => validatePrompt( e.target.value ));
  
-    validatePrompt( textArea.value );
+    validatePrompt( submitText.value );
 
     // Populate grid with data
 
