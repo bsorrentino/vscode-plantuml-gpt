@@ -2,8 +2,18 @@
   "name": "plantuml-gpt",
   "displayName": "plantuml-gpt",
   "version": "0.1.0",
-  "publisher": "bsorrentino",
   "description": "view that allow to create/update plantUML diagram using GPT",
+  "publisher": "bsorrentino",
+  "pricing": "Free",
+  "bugs": {
+    "url": "https://github.com/bsorrentino/vscode-plantuml-gpt/issues",
+    "email": "sean@contoso.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bsorrentino/vscode-plantuml-gpt.git"
+  },
+  "homepage": "https://github.com/bsorrentino/vscode-plantuml-gpt/blob/main/README.md",
   "author": {
     "name": "bartolomeo sorrentino"
   },
