@@ -5,6 +5,11 @@
   "description": "view that allow to create/update plantUML diagram using GPT",
   "publisher": "bsorrentino",
   "pricing": "Free",
+  "icon": "images/icon.png",
+  "galleryBanner": {
+    "color": "#C80000",
+    "theme": "dark"
+  },
   "bugs": {
     "url": "https://github.com/bsorrentino/vscode-plantuml-gpt/issues",
     "email": "bartolomeo.sorrentino@gmail.com"
