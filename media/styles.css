@@ -52,6 +52,34 @@
     overflow-y: scroll;
 }
 
+#saved_prompt {
+    /*
+    font-family: Verdana;
+    font-size: 14px;
+    */
+    border-collapse: collapse;
+    min-width: 300px;
+    
+}
+  
+#saved_prompt td {
+    padding: 5px 20px 5px 5px;
+    text-align: left;
+    margin: 0;
+}
+
+#saved_prompt th {
+    position: sticky;
+    padding: 7px;
+    top: 0;
+    text-align: left;
+    background-color: var(--background);
+}
+
+#saved_prompt tbody {
+    overflow-y: scroll;
+}
+
 /*
 .vscode-light #history_prompt th {
     background-color: gray;
