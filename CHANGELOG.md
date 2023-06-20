@@ -1,11 +1,17 @@
 # Changelog
 
 
+"name: v0.1.0" is a release tag
 
-## [Unreleased](https://github.com/bsorrentino/vscode-plantuml-gpt.git/releases/tag/Unreleased) ()
+## [v0.1.0](https://github.com/bsorrentino/vscode-plantuml-gpt.git/releases/tag/v0.1.0) (2023-06-20)
 
 ### Features
 
+ *  add saved prompts ([6d3a19abb624f77](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/6d3a19abb624f7716177225408264d8a93c83f58))
+     > add saved prompts in a separate tab
+   
+ *  add changelog management ([8df1e551c69a7c5](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/8df1e551c69a7c51cd38f4e975dc53719b088d62))
+   
  *  select text after submit ([aac5e7c646ad7ba](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/aac5e7c646ad7ba57199bd4416346e2b5e9c1d41))
    
  *  add save and restore prompt ([86abe6b904e3513](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/86abe6b904e35134f0ec1758a1bfa0b910c4c883))
@@ -42,6 +48,11 @@
 
 ### Documentation
 
+ -  updare readme and images ([06544b1ba61c6e9](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/06544b1ba61c6e96a5c606b1a599233e7f6563f4))
+
+ -  add a animated git ([9f448d5498543c8](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/9f448d5498543c88f92ec6e57c8421008f69ffd5))
+     > display update diagram use case
+
  -  **vscode-theme-var.md**  add vscode css vars ([99a3859d61c7807](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/99a3859d61c780770d806e4d0a2b6e663500b3ee))
 
 
@@ -53,5 +64,21 @@
 
  -  clean code ([94d6860ca0e6048](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/94d6860ca0e604887f21ec24ad704ac9c66f31e0))
 
+
+### ALM 
+
+ -  add create diagram movie ([53ac2c594959742](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/53ac2c59495974241a3cf99e41359aa025cd9f3e))
+
+ -  **package.json**  upgrade openai package ([45d382b40f34b2f](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/45d382b40f34b2f1075df43b88c9b0b612b1660d))
+
+ -  add icon ([2238e983665be26](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/2238e983665be265a0afba585cf99cab273b5ed3))
+
+ -  **package.json**  add mail ([0e8b9f5ff1e31cd](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/0e8b9f5ff1e31cd933d5074608dbce3404316bb8))
+
+ -  **package.json**  add required meta data ([bc2bf59133235dd](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/bc2bf59133235ddefc1a468618de9ae44f0e99bf))
+
+ -  add feature "update" video ([6e02c2495748fec](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/6e02c2495748fec6aeac28490aa07243bbae7bcb))
+
+ -  **package.json**  add version,publisher,author ([2c6a18595ea756e](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/2c6a18595ea756e5874a2910559acb789aabb592))
 
 
