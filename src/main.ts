@@ -32,6 +32,41 @@ const vscode = acquireVsCodeApi();
 
 const isStringValid = ( value: string|null ):boolean => value!==null && value.length>0;
 
+const commandListener =   (e:{ target:any }) => {
+
+    const button = e.target.closest( '.table-command' );
+
+    if( !button ) { // GUARD
+        return;
+    }
+
+    const { command, index }  =  button.dataset;
+
+    vscode.postMessage({
+        command: command,
+        text: index,
+        });
+};   
+
+const updateTableBody = ( table: HTMLTableElement, update?:( tbody: HTMLTableSectionElement  ) => void  ) => {
+    const tbody = table.querySelector( 'tbody' ) ;
+    if( !tbody ) {
+        return null;
+    }
+
+    // remove previous listeners
+    let commands = tbody.querySelectorAll('.table-command');
+    commands.forEach( e => e.removeEventListener( "click", commandListener ));
+
+    if( update ) {
+        update( tbody );
+    }
+
+    // add listeners
+    commands = tbody.querySelectorAll('.table-command');
+    commands.forEach( e => e.addEventListener( "click", commandListener ));
+};
+
 
 window.addEventListener("load", () => {
 
@@ -42,40 +77,25 @@ window.addEventListener("load", () => {
     const historyBadge = document.getElementById("history_badge") as Badge|null;
     const panels = document.getElementById("panels");
     const progressRing = document.getElementById("progress-ring");
+    const savedPrompt = document.getElementById("saved_prompt") as HTMLTableElement|null;
+    const savedBadge = document.getElementById("saved_badge") as Badge|null;
 
     if( !(submitButton && 
         submitText && 
         undoButton && 
         historyPrompt && 
+        savedPrompt &&
         historyBadge && 
+        savedBadge &&
         panels && 
         progressRing ) ) { // GUARD
         return;
     }
 
-    let commands:NodeListOf<Element>|null = null;
-
-    const commandListener =   (e:{ target:any }) => {
-
-        const button = e.target.closest( '.history-command' );
-
-        if( !button ) { // GUARD
-            return;
-        }
-
-        const { command, index }  =  button.dataset;
-
-        vscode.postMessage({
-            command: command,
-            text: index,
-            });
-    };   
-
-
     const selectSubmitText = () => {
         (<any>submitText).select();
     };
-    
+
     window.addEventListener("message", ( event ) => {
 
         const { command } = event.data;
@@ -87,26 +107,28 @@ window.addEventListener("load", () => {
 
             const { data:prompts } = event.data as { data: { tbody: string, length: number} };
             
-            const tbody = historyPrompt.querySelector( 'tbody' ) ;
-            if( tbody ) {
-                
-                // Unregister listener
-                if( commands ) {
-                    commands.forEach( e => e.removeEventListener( "click", commandListener ));
-                }
-                
+            updateTableBody( historyPrompt, ( tbody ) => {
                 // replace tbody
                 tbody.innerHTML = prompts.tbody;
     
                 historyBadge.innerText = `${prompts.length}`;
-                
-                commands = tbody.querySelectorAll('.history-command');
+            });
 
-                // Register listeners
-                if( commands ) {
-                    commands.forEach( e => e.addEventListener( "click", commandListener ));
-                }
-            }
+            return;
+        }
+        case 'saved.update':
+        {
+            undoButton.disabled = false;
+
+            const { data:prompts } = event.data as { data: { tbody: string, length: number} };
+            
+            updateTableBody( savedPrompt, ( tbody ) => {
+                // replace tbody
+                tbody.innerHTML = prompts.tbody;
+    
+                savedBadge.innerText = `${prompts.length}`;
+            });
+
             return;
         }
         case 'prompt.replace':
@@ -161,5 +183,8 @@ window.addEventListener("load", () => {
     validatePrompt( submitText.value );
 
     // Populate grid with data
+
+    updateTableBody( historyPrompt );
+    updateTableBody( savedPrompt );
 
 });

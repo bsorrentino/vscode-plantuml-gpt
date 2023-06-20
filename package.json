@@ -1,8 +1,27 @@
 {
   "name": "plantuml-gpt",
   "displayName": "plantuml-gpt",
-  "description": "view that allow to create/update plantUML diagram using OpenAI",
-  "version": "0.0.1",
+  "version": "0.1.0",
+  "description": "view that allow to create/update plantUML diagram using GPT",
+  "publisher": "bsorrentino",
+  "pricing": "Free",
+  "icon": "images/icon.png",
+  "galleryBanner": {
+    "color": "#C80000",
+    "theme": "dark"
+  },
+  "bugs": {
+    "url": "https://github.com/bsorrentino/vscode-plantuml-gpt/issues",
+    "email": "bartolomeo.sorrentino@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bsorrentino/vscode-plantuml-gpt.git"
+  },
+  "homepage": "https://github.com/bsorrentino/vscode-plantuml-gpt/blob/main/README.md",
+  "author": {
+    "name": "bartolomeo sorrentino"
+  },
   "engines": {
     "vscode": "^1.78.0"
   },
@@ -84,6 +103,6 @@
   "dependencies": {
     "@vscode/codicons": "^0.0.33",
     "@vscode/webview-ui-toolkit": "^1.2.2",
-    "openai": "^3.2.1"
+    "openai": "^3.3.0"
   }
 }
