@@ -52,7 +52,7 @@ Calling out known issues can help limit users opening duplicate issues against y
 
 ## Release Notes
 
-### 1.0.0
+### 0.1.0
 
 
 ---
