@@ -100,20 +100,20 @@ window.addEventListener("load", () => {
 
     window.addEventListener("message", ( event ) => {
 
-        const { command } = event.data;
+        const { command, data:commandData } = event.data;
 
         switch( command ) {
         case 'history.update':
         {
             undoButton.disabled = false;
 
-            const { data:prompts } = event.data as { data: { tbody: string, length: number} };
+            const { tbody:promptBody, length:promptLen } = commandData as { tbody: string, length: number };
             
             updateTableBody( historyPrompt, ( tbody ) => {
                 // replace tbody
-                tbody.innerHTML = prompts.tbody;
+                tbody.innerHTML = promptBody;
     
-                historyBadge.innerText = `${prompts.length}`;
+                historyBadge.innerText = `${promptLen}`;
             });
 
             return;
@@ -122,20 +122,21 @@ window.addEventListener("load", () => {
         {
             undoButton.disabled = false;
 
-            const { data:prompts } = event.data as { data: { tbody: string, length: number} };
+            const { tbody:promptBody, length:promptLen } = commandData as { tbody: string, length: number };
             
             updateTableBody( savedPrompt, ( tbody ) => {
                 // replace tbody
-                tbody.innerHTML = prompts.tbody;
+                tbody.innerHTML = promptBody;
     
-                savedBadge.innerText = `${prompts.length}`;
+                savedBadge.innerText = `${promptLen}`;
             });
 
             return;
         }
         case 'prompt.replace':
         {
-            const { data:prompt } = event.data;
+            const prompt  = commandData as string;
+
             if( validatePrompt( prompt ) ) {
                 submitText.value = prompt;
                 panels.setAttribute("activeid", "tab-prompt");
@@ -144,10 +145,10 @@ window.addEventListener("load", () => {
         }
         case 'prompt.submit':
         {
-            const { info, progress } = event.data as { info: string, progress: boolean  };
+            const { info, progress } = commandData as { progress: boolean, info: string  };
 
             if( progress ) {
-                submitInfo.innerText = '';
+                submitInfo.innerText = info ?? '';
                 undoButton.disabled = true;
                 submitButton.disabled = true;
                 progressRing.classList.remove('hide-progress');
