@@ -1,7 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import { Configuration, OpenAIApi } from 'openai';
+import { Configuration, CreateCompletionResponseUsage, OpenAIApi } from 'openai';
 import * as https from 'node:https';
 
 // [How to use the VSCode local storage API](https://www.chrishasz.com/blog/2020/07/28/vscode-how-to-use-local-storage-api/)
@@ -389,6 +389,8 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 				// 	return;
 				case 'prompt.submit':
 
+					let info:string|null = null;
+
 					this._sendMessageToWebView( 'prompt.submit', true );
 					this._submitAndReplace( text )
 					.then( result => {			
@@ -398,11 +400,13 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 							tbody: this._promptHistory.content,
 							length: this._promptHistory.length
 						});
+						info = result.info;
 					})
-					.catch( e => 
-						console.log( 'SUBMIT ERROR', e )
-					).finally( () => 
-						this._sendMessageToWebView( 'prompt.submit', false )
+					.catch( e => { 
+						console.log( 'SUBMIT ERROR', e );
+						info = e.description ?? 'ERROR';
+					}).finally( () => 
+						this._sendMessageToWebView( 'prompt.submit', { info: info, progress: false } )
 					);
 					return;
 				case 'prompt.undo':
@@ -508,7 +512,8 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
   <vscode-panel-view id="wiew-1">
    <div id="prompt_container">
     <vscode-text-area id="prompt" rows="10" cols="80" resize="horizontal" ${submitDisabledTag('readonly')} placeholder="${ submitDisabled ? 'Please provides API KEY in extension settings' : 'Let chat with PlantUML diagram'}"></vscode-text-area>
-    <div id="command">
+	<div id="command">
+	    <div id="info"></div>
 		<vscode-button id="undo" ${undoDisabledTag('disabled')}>Undo</vscode-button>
 		<vscode-button id="submit" ${submitDisabledTag('disabled')}>Submit</vscode-button>
 		<vscode-progress-ring id="progress-ring" class="hide-progress"></vscode-progress-ring>
@@ -553,7 +558,7 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 </html>`;
 	}
 	
-	private async _submitAndReplace( instruction: string ):Promise<{input:string|null, result?:string|null}> {
+	private async _submitAndReplace( instruction: string ):Promise<{input:string|null, result?:string|null, info: string|null}> {
 
 		const { apikey } = vscode.workspace.getConfiguration('plantuml-gpt');
 
@@ -603,14 +608,16 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 				top_p: 1,
 			});
 
-			const result = response.data.choices[0].text;
+			const { choices, usage } = response.data;
+
+			const result = choices[0].text;
 
 			console.log( result );
 			if( result ) {
 				_replaceTextInEditor( activeTextEditor, result );
 			}
 
-			return { input, result };
+			return { input, result, info: `prompt tokens: ${usage.prompt_tokens} - total tokens: ${usage.total_tokens}` };
 		}
 		catch( error:any ) {
 			if( error.response ) {

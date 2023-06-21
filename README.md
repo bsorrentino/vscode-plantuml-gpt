@@ -8,8 +8,6 @@ vscode extension that allows to create/update PlantUML diagram using GPT. Though
 * Uses current diagram as input context for GPT processing, this allows to perform intelligent update
 * Keeps track of submitted prompts with possibility to persist them
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
-
 ### Create a diagram using NLP
 
 Describe best as you can the diagram that you'd like to create and GPT will generate it. In the video below you can see the generated diagram using prompt:
@@ -18,8 +16,7 @@ Describe best as you can the diagram that you'd like to create and GPT will gene
 >Write sequence diagram that represent an invocation to a "microservice" that need authentication based upon the OAuth2 standard flow 
 >```
 
-
-![update diagram](images/create-diagram-XL.gif)
+![create diagram](images/create-diagram-XL.gif)
 
 ### Update a diagram using NLP
 
@@ -44,19 +41,20 @@ This extension contributes the following settings:
 * `myExtension.thing`: Set to `blah` to do something.
 -->
 
+<!--
+
 ## Known Issues
 
-<!--
 Calling out known issues can help limit users opening duplicate issues against your extension.
 -->
 
+<!--
+
 ## Release Notes
 
-### 0.1.0
-
+-->
 
 ---
-
 
 [PlantUML extension]: https://marketplace.visualstudio.com/items?itemName=jebbs.plantuml
 [OpenAI]: https://openai.com

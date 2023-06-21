@@ -79,6 +79,7 @@ window.addEventListener("load", () => {
     const progressRing = document.getElementById("progress-ring");
     const savedPrompt = document.getElementById("saved_prompt") as HTMLTableElement|null;
     const savedBadge = document.getElementById("saved_badge") as Badge|null;
+    const submitInfo = document.getElementById("info") as HTMLDivElement;
 
     if( !(submitButton && 
         submitText && 
@@ -88,6 +89,7 @@ window.addEventListener("load", () => {
         historyBadge && 
         savedBadge &&
         panels && 
+        submitInfo &&
         progressRing ) ) { // GUARD
         return;
     }
@@ -142,14 +144,17 @@ window.addEventListener("load", () => {
         }
         case 'prompt.submit':
         {
-            const { data:progress } = event.data;
+            const { info, progress } = event.data as { info: string, progress: boolean  };
+
             if( progress ) {
+                submitInfo.innerText = '';
                 undoButton.disabled = true;
                 submitButton.disabled = true;
                 progressRing.classList.remove('hide-progress');
                 selectSubmitText();
             }
             else {
+                submitInfo.innerText = info;
                 progressRing.classList.add('hide-progress');
                 submitButton.disabled = false;
             }
