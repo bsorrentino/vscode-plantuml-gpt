@@ -48,11 +48,19 @@ This extension contributes the following settings:
 Calling out known issues can help limit users opening duplicate issues against your extension.
 -->
 
-<!--
 
 ## Release Notes
 
--->
+### 0.1.0 
+
+* Show GPT panel when a plantuml editor is activated.
+* Uses current diagram as input context for GPT processing, this allows to perform intelligent update
+* Keeps track of submitted prompts with possibility to persist them
+
+### 0.2.0
+
+* show the tokens usage
+
 
 ---
 
