@@ -6,9 +6,6 @@
   "publisher": "bsorrentino",
   "pricing": "Free",
   "icon": "images/icon.png",
-  "galleryBanner": {
-    "theme": "dark"
-  },
   "bugs": {
     "url": "https://github.com/bsorrentino/vscode-plantuml-gpt/issues",
     "email": "bartolomeo.sorrentino@gmail.com"
