@@ -1,13 +1,12 @@
 {
   "name": "plantuml-gpt",
   "displayName": "PlantUML + GPT",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "view that allow to create/update plantUML diagram using GPT",
   "publisher": "bsorrentino",
   "pricing": "Free",
   "icon": "images/icon.png",
   "galleryBanner": {
-    "color": "#EFF1F3",
     "theme": "dark"
   },
   "bugs": {
