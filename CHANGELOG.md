@@ -1,6 +1,43 @@
 # Changelog
 
 
+
+## [Unreleased](https://github.com/bsorrentino/vscode-plantuml-gpt.git/releases/tag/Unreleased) ()
+
+
+
+
+
+
+
+"name: v0.2.0" is a release tag
+
+## [v0.2.0](https://github.com/bsorrentino/vscode-plantuml-gpt.git/releases/tag/v0.2.0) (2023-06-21)
+
+### Features
+
+ *  add tokens usage info ([57a10e0f9d8403a](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/57a10e0f9d8403a0b5feed4824db85b961fefe10))
+   
+
+
+### Documentation
+
+ -  **readme.md**  update ([e807f59d93de31f](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/e807f59d93de31fce213621c1d81f392c521fd18))
+
+ -  **readme.md**  update ([19ac2c77eb45d96](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/19ac2c77eb45d96b103d06ef11557e677d100530))
+
+ -  **readme.md**  update ([7de6d852f1d0c64](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/7de6d852f1d0c647d5fc08c7885e89049df07661))
+
+ -  **changelog.md**  update ([c3253212d559668](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/c3253212d559668cd21cbd37497d81adbde5c92d))
+
+
+
+### ALM 
+
+ -  **package.json**  move to next version ([af07dbf5d7c53ce](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/af07dbf5d7c53ce6699cee611a7f1ce986173298))
+
+
+
 "name: v0.1.0" is a release tag
 
 ## [v0.1.0](https://github.com/bsorrentino/vscode-plantuml-gpt.git/releases/tag/v0.1.0) (2023-06-20)
