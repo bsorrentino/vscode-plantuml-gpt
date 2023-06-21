@@ -79,6 +79,7 @@ window.addEventListener("load", () => {
     const progressRing = document.getElementById("progress-ring");
     const savedPrompt = document.getElementById("saved_prompt") as HTMLTableElement|null;
     const savedBadge = document.getElementById("saved_badge") as Badge|null;
+    const submitInfo = document.getElementById("info") as HTMLDivElement;
 
     if( !(submitButton && 
         submitText && 
@@ -88,6 +89,7 @@ window.addEventListener("load", () => {
         historyBadge && 
         savedBadge &&
         panels && 
+        submitInfo &&
         progressRing ) ) { // GUARD
         return;
     }
@@ -98,20 +100,20 @@ window.addEventListener("load", () => {
 
     window.addEventListener("message", ( event ) => {
 
-        const { command } = event.data;
+        const { command, data:commandData } = event.data;
 
         switch( command ) {
         case 'history.update':
         {
             undoButton.disabled = false;
 
-            const { data:prompts } = event.data as { data: { tbody: string, length: number} };
+            const { tbody:promptBody, length:promptLen } = commandData as { tbody: string, length: number };
             
             updateTableBody( historyPrompt, ( tbody ) => {
                 // replace tbody
-                tbody.innerHTML = prompts.tbody;
+                tbody.innerHTML = promptBody;
     
-                historyBadge.innerText = `${prompts.length}`;
+                historyBadge.innerText = `${promptLen}`;
             });
 
             return;
@@ -120,20 +122,21 @@ window.addEventListener("load", () => {
         {
             undoButton.disabled = false;
 
-            const { data:prompts } = event.data as { data: { tbody: string, length: number} };
+            const { tbody:promptBody, length:promptLen } = commandData as { tbody: string, length: number };
             
             updateTableBody( savedPrompt, ( tbody ) => {
                 // replace tbody
-                tbody.innerHTML = prompts.tbody;
+                tbody.innerHTML = promptBody;
     
-                savedBadge.innerText = `${prompts.length}`;
+                savedBadge.innerText = `${promptLen}`;
             });
 
             return;
         }
         case 'prompt.replace':
         {
-            const { data:prompt } = event.data;
+            const prompt  = commandData as string;
+
             if( validatePrompt( prompt ) ) {
                 submitText.value = prompt;
                 panels.setAttribute("activeid", "tab-prompt");
@@ -142,14 +145,17 @@ window.addEventListener("load", () => {
         }
         case 'prompt.submit':
         {
-            const { data:progress } = event.data;
+            const { info, progress } = commandData as { progress: boolean, info: string  };
+
             if( progress ) {
+                submitInfo.innerText = info ?? '';
                 undoButton.disabled = true;
                 submitButton.disabled = true;
                 progressRing.classList.remove('hide-progress');
                 selectSubmitText();
             }
             else {
+                submitInfo.innerText = info;
                 progressRing.classList.add('hide-progress');
                 submitButton.disabled = false;
             }

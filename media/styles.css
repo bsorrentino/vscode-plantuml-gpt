@@ -12,9 +12,15 @@
     gap: 2px;
 }
 
-#prompt_container > #command {
+#bottom-bar {
     display: flex;
-    justify-content: flex-end;
+    justify-content:space-between;
+    gap: 5px;
+}
+
+#command-bar {
+    display: flex;
+    justify-content:flex-end;
     gap: 5px;
 }
 
