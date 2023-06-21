@@ -18,6 +18,12 @@
     gap: 5px;
 }
 
+#prompt_container > #info {
+    display: flex;
+    justify-content: flex-start;
+    gap: 5px;
+}
+
 .table-scroll {
     height: 250px;
     padding: 0px;
