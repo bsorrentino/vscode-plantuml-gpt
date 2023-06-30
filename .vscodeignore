@@ -12,3 +12,6 @@ vsc-extension-quickstart.md
 **/.eslintrc.json
 **/*.map
 **/*.ts
+
+# exclude codeicons
+!node_modules/@vscode/codicons/dist
