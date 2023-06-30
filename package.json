@@ -1,7 +1,7 @@
 {
   "name": "plantuml-gpt",
   "displayName": "PlantUML + GPT",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "view that allow to create/update plantUML diagram using GPT",
   "publisher": "bsorrentino",
   "pricing": "Free",
@@ -22,7 +22,8 @@
     "vscode": "^1.78.0"
   },
   "categories": [
-    "Other"
+    "Other",
+    "Programming Languages"
   ],
   "activationEvents": [
     "onLanguage:plantuml"
