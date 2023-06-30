@@ -16,8 +16,6 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: 18.16.0
+      - run: npm iinstall -g vsce     
       - run: npm install
-      - uses: sigma/vsce-publish-action@v0.0.2
-        with:
-          vsce_token: ${{ secrets.VSCE_TOKEN }}
-          #build_pkg: no
+      - run: vsce publish -p ${{ secrets.VSCE_TOKEN }}
