@@ -5,6 +5,49 @@
 ## [Unreleased](https://github.com/bsorrentino/vscode-plantuml-gpt.git/releases/tag/Unreleased) ()
 
 
+### Bug Fixes
+
+ -  **.vscodeignore**  add exception on codeicons directory ([572f90adb41f888](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/572f90adb41f888f0ebf7a4520d90f5e41bc4379))
+     > issue #1
+
+
+
+
+### ALM 
+
+ -  **package.json**  move to next release ([3092f92aca09489](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/3092f92aca09489341edd141d93c4aea7ce4905f))
+
+ -  rename github action ([c84c24971e67c28](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/c84c24971e67c28eece9f3f9d81dd09126a56fe3))
+
+ -  move github action in right place ([f105ab863e4ceaf](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/f105ab863e4ceaf9112d9e3a3996ad97473db6e7))
+
+ -  add vsce publish action ([24b4e65cfd28a49](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/24b4e65cfd28a4937ff3d2ca9a554b602053d3f2))
+
+
+
+"name: v0.2.2" is a release tag
+
+## [v0.2.2](https://github.com/bsorrentino/vscode-plantuml-gpt.git/releases/tag/v0.2.2) (2023-06-21)
+
+
+
+
+
+### ALM 
+
+ -  **package.json**  move to next version ([0acedf60104e780](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/0acedf60104e7805beb7be7dde6c182e6603304c))
+
+
+
+"name: v0.2.1" is a release tag
+
+## [v0.2.1](https://github.com/bsorrentino/vscode-plantuml-gpt.git/releases/tag/v0.2.1) (2023-06-21)
+
+
+
+### Documentation
+
+ -  **changelog.md**  update ([54e42f811e0cd2d](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/54e42f811e0cd2d99d8ed64a764a0bb008bfcfb2))
 
 
 
