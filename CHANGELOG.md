@@ -7,9 +7,36 @@
 
 ### Bug Fixes
 
+ -  **vsce-publish.yml**  update wrong command ([2131dd0d1246f4f](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/2131dd0d1246f4f01e36f8fcb3393c9d6c052f69))
+
+ -  **vsce-publish.yml**  fix node version ([aff1fb96df19bd1](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/aff1fb96df19bd1dae1f36cb7a08284b685d6cd3))
+
+ -  **vsce-publish.yml**  remove option ([370c819140c8a6c](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/370c819140c8a6c8ddaa9480126c8a02f2eb74bf))
+
+
+
+### Refactor
+
+ -  **vsce-publish.yml**  update ([4dc93d1933b3a36](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/4dc93d1933b3a36f3f7913ab2a4226729232f0ca))
+     > add commands to publish
+
+
+
+
+"name: v0.2.3" is a release tag
+
+## [v0.2.3](https://github.com/bsorrentino/vscode-plantuml-gpt.git/releases/tag/v0.2.3) (2023-06-30)
+
+
+### Bug Fixes
+
  -  **.vscodeignore**  add exception on codeicons directory ([572f90adb41f888](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/572f90adb41f888f0ebf7a4520d90f5e41bc4379))
      > issue #1
 
+
+### Documentation
+
+ -  **changelog.md**  update ([fc3f99582d06c72](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/fc3f99582d06c721b0bcbcf71c9cad9d867171f6))
 
 
 
