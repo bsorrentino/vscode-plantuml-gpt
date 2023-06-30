@@ -20,4 +20,4 @@ jobs:
       - uses: sigma/vsce-publish-action@v0.0.2
         with:
           vsce_token: ${{ secrets.VSCE_TOKEN }}
-          build_pkg: no
+          #build_pkg: no
