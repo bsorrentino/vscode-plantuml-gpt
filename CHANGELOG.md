@@ -4,6 +4,12 @@
 
 ## [Unreleased](https://github.com/bsorrentino/vscode-plantuml-gpt.git/releases/tag/Unreleased) ()
 
+### Features
+
+ *  change OpenAI API model ([9e6b73686f4e935](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/9e6b73686f4e9356ea01304890de3c2309cf11cd))
+     > move from &quot;Edit Model&quot; to &quot;Chat Completion Model&quot;
+     > Resolve #2
+   
 
 ### Bug Fixes
 
@@ -14,12 +20,21 @@
  -  **vsce-publish.yml**  remove option ([370c819140c8a6c](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/370c819140c8a6c8ddaa9480126c8a02f2eb74bf))
 
 
+### Documentation
+
+ -  **changelog.md**  update ([adc92119b1b5082](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/adc92119b1b50822eb1191841ebbbf8e550a4431))
+
 
 ### Refactor
 
  -  **vsce-publish.yml**  update ([4dc93d1933b3a36](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/4dc93d1933b3a36f3f7913ab2a4226729232f0ca))
      > add commands to publish
 
+
+### ALM 
+
+ -  upgrade openai package ([dde9df756b332c3](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/dde9df756b332c3c0d44c2f447b8a190e3ad751f))
+     > working on #2
 
 
 
