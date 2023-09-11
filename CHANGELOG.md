@@ -1,8 +1,9 @@
 # Changelog
 
 
+"name: v0.3.0" is a release tag
 
-## [Unreleased](https://github.com/bsorrentino/vscode-plantuml-gpt.git/releases/tag/Unreleased) ()
+## [v0.3.0](https://github.com/bsorrentino/vscode-plantuml-gpt.git/releases/tag/v0.3.0) (2023-09-11)
 
 ### Features
 
@@ -22,6 +23,8 @@
 
 ### Documentation
 
+ -  update changelod and readme ([599425482cb2f4d](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/599425482cb2f4de1d05f21a50666584d0b4d44d))
+
  -  **changelog.md**  update ([adc92119b1b5082](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/adc92119b1b50822eb1191841ebbbf8e550a4431))
 
 
@@ -32,6 +35,8 @@
 
 
 ### ALM 
+
+ -  update release ([5eb51a2b10ffc43](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/5eb51a2b10ffc43d7a90eba31177e4c85833fbcb))
 
  -  upgrade openai package ([dde9df756b332c3](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/dde9df756b332c3c0d44c2f447b8a190e3ad751f))
      > working on #2
