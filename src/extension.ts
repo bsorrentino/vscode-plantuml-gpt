@@ -1,7 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import { Configuration, CreateCompletionResponseUsage, OpenAIApi } from 'openai';
+import { OpenAI, ClientOptions } from 'openai';
 import * as https from 'node:https';
 
 // [How to use the VSCode local storage API](https://www.chrishasz.com/blog/2020/07/28/vscode-how-to-use-local-storage-api/)
@@ -584,10 +584,10 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 			throw 'instruction is empty!';
 		}
 
-		const configuration = new Configuration({
+		const configuration:ClientOptions = {
 		  apiKey: apikey,
-		});
-		const openai = new OpenAIApi(configuration);
+		};
+		const openai = new OpenAI(configuration);
 		
 		try {
 			
@@ -602,19 +602,32 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 			// });
 			// const result = response.choices[0].text;
 
-			const response = await openai.createEdit({
-				model: "text-davinci-edit-001",
-				input: input.replace(/(?:\r\n|\r|\n)+/g, '\n'),
-				instruction: instruction,
+			const response = await openai.chat.completions.create({
+				model: "gpt-3.5-turbo",
+				messages: [
+					{
+						role: "system",
+						content: `You are my plantUML assistant
+						Please respond exclusively with diagram code`
+					},
+					{
+						role: "assistant",
+						content: input.replace(/(?:\r\n|\r|\n)+/g, '\n')
+					},
+					{
+						role: 'user',
+						content: instruction
+					}					
+				],
 				temperature: 0.5,
 				// eslint-disable-next-line @typescript-eslint/naming-convention
 				top_p: 1,
 			});
 
-			const { choices, usage } = response.data;
+			const { choices, usage } = response;
 
-			const result = choices[0].text;
-			const info = `Tokens | prompt: ${usage.prompt_tokens} | completion: ${usage.completion_tokens} | total: ${usage.total_tokens} |`;
+			const result = choices[0].message.content;
+			const info = `Tokens | prompt: ${usage?.prompt_tokens} | completion: ${usage?.completion_tokens} | total: ${usage?.total_tokens} |`;
 			console.log( result );
 			if( result ) {
 				_replaceTextInEditor( activeTextEditor, result );

@@ -61,6 +61,9 @@ Calling out known issues can help limit users opening duplicate issues against y
 
 * show the tokens usage
 
+### 0.3.0
+
+* Move out from [deprecated OpenAI API Model](https://platform.openai.com/docs/deprecations/edit-models-endpoint)  moving from **Edit Model** to **Chat Completion**
 
 ---
 
