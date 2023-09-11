@@ -100,6 +100,6 @@
   "dependencies": {
     "@vscode/codicons": "^0.0.33",
     "@vscode/webview-ui-toolkit": "^1.2.2",
-    "openai": "^3.3.0"
+    "openai": "^4.6.0"
   }
 }
