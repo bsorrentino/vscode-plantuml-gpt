@@ -51,21 +51,29 @@ Calling out known issues can help limit users opening duplicate issues against y
 
 ## Release Notes
 
+### 0.4.0
+
+* Add AI Multi-Modality using [GPT-4 Vision API][gpt4v] to transform image representing diagram in plantuml script.
+    * Transform images from URL (online images)
+    * Transform images in the current VSCode Workspace  
+
+### 0.3.0
+
+* Move out from [deprecated OpenAI API Model](https://platform.openai.com/docs/deprecations/edit-models-endpoint)  moving from **Edit Model** to **Chat Completion**
+
+### 0.2.0
+
+* show the tokens usage
+
 ### 0.1.0 
 
 * Show GPT panel when a plantuml editor is activated.
 * Uses current diagram as input context for GPT processing, this allows to perform intelligent update
 * Keeps track of submitted prompts with possibility to persist them
 
-### 0.2.0
-
-* show the tokens usage
-
-### 0.3.0
-
-* Move out from [deprecated OpenAI API Model](https://platform.openai.com/docs/deprecations/edit-models-endpoint)  moving from **Edit Model** to **Chat Completion**
 
 ---
 
 [PlantUML extension]: https://marketplace.visualstudio.com/items?itemName=jebbs.plantuml
 [OpenAI]: https://openai.com
+[gpt4v]: https://help.openai.com/en/articles/8555496-gpt-4-vision-api
