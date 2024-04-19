@@ -1,6 +1,34 @@
 # Changelog
 
 
+"name: v0.4.0" is a release tag
+
+## [v0.4.0](https://github.com/bsorrentino/vscode-plantuml-gpt.git/releases/tag/v0.4.0) (2024-04-19)
+
+### Features
+
+ *  add context menu ([69a49e238da5330](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/69a49e238da533026812c8bea6c43bbc14399201))
+     > resove #3
+   
+ *  generate diagram from image url ([f1bc1238b6a695a](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/f1bc1238b6a695a5d08fb9a45947452660f18257))
+     > work on #3
+   
+
+
+### Documentation
+
+ -  update readme ([e2b65f56ca7a1d2](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/e2b65f56ca7a1d22ed31f149cc512c92640067ac))
+
+ -  update changelog ([dc086e7c637a775](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/dc086e7c637a775adb984fa3ffa91ad768bfca0d))
+
+
+
+### ALM 
+
+ -  move to next version ([991db0677398656](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/991db067739865618555403e58e7ae71e4ae8d9a))
+
+
+
 "name: v0.3.0" is a release tag
 
 ## [v0.3.0](https://github.com/bsorrentino/vscode-plantuml-gpt.git/releases/tag/v0.3.0) (2023-09-11)
