@@ -40,6 +40,15 @@
         }
       }
     },
+    "menus": {
+      "explorer/context": [
+          {
+              "when": "resourceExtname == .png || resourceExtname == .jpg || resourceExtname == .jpeg || resourceExtname == .gif  || resourceExtname == .webp",
+              "command": "plantuml-gpt.fromImageFile",
+              "group": "navigation"
+          }
+      ]
+    },
     "viewsContainers": {
       "panel": [
         {
@@ -62,13 +71,16 @@
     },
     "commands": [
       {
-        "command": "plantuml-gpt.fromImageUrl",
-        "title": "Create new PlantUML file from Image Url"
+        "command": "plantuml-gpt.fromImageFile",
+        "title": "Create new PlantUML from Image File",
+        "icon": {
+          "light": "images/icon.png",
+          "dark": "images/icon.png"
+        }
       },
       {
-        "command": "plantuml-gpt.open",
-        "title": "Open PlantUML+GPT Panel",
-        "when": "plantuml-gpt.active"
+        "command": "plantuml-gpt.fromImageUrl",
+        "title": "Create new PlantUML file from Image Url"
       }
     ]
   },

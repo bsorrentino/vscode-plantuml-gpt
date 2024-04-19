@@ -83,15 +83,7 @@ export async function describeDiagramImage(llmVision: ChatOpenAI, state: AgentSt
   return { diagram: response };
 }
 
-export async function imageFileToUrl(imagePath: string) {
 
-  const imageBuffer = await fs.readFile(imagePath);
-  // const imageContent = await vscode.workspace.fs.readFile(vscode.Uri.file(imagePath));
-  // const imageBuffer = Buffer.from(imageContent);
-
-  const base64EncodedImage = imageBuffer.toString('base64');
-  return `data:image/png;base64,${base64EncodedImage}`;
-}
 
 
 async function translateGenericDiagramDescriptionToPlantUML(llm: ChatOpenAI, state: AgentState, options?: Partial<RunnableConfig>): Promise<Partial<AgentState>> {
@@ -205,6 +197,16 @@ function compileGraph(apiKey: string) {
 
 }
 
+const imageFileToUrl = async (imagePath: string) => {
+
+  const imageBuffer = await fs.readFile(imagePath);
+  // const imageContent = await vscode.workspace.fs.readFile(vscode.Uri.file(imagePath));
+  // const imageBuffer = Buffer.from(imageContent);
+
+  const base64EncodedImage = imageBuffer.toString('base64');
+  return `data:image/png;base64,${base64EncodedImage}`;
+};
+
 const isUrl = (source: string) => {
   try {
     new URL(source);
@@ -244,8 +246,8 @@ export const imageFileToDiagram = async (args: { imageFile: string, apiKey: stri
   }
 
   const app = compileGraph(apiKey);
-  return await app.invoke({
-    diagramImageUrlOrData: imageFileToUrl(imageFile)
-  }) as AgentState;
+  return await app.stream({
+    diagramImageUrlOrData: await imageFileToUrl(imageFile)
+  });
 
 };

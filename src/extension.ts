@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 import { ChatOpenAI, ClientOptions } from '@langchain/openai';
 import * as https from 'node:https';
 import path = require('node:path');
-import { AgentState, imageUrlToDiagram } from './image-to-diagram';
+import { AgentState, imageUrlToDiagram, imageFileToDiagram } from './image-to-diagram';
 
 // [How to use the VSCode local storage API](https://www.chrishasz.com/blog/2020/07/28/vscode-how-to-use-local-storage-api/)
 class LocalStorageService {
@@ -238,6 +238,73 @@ const _registerCommandNewFromImageUrl = (context: vscode.ExtensionContext ) =>
 		
 	}
 );
+const _registerCommandNewFromImageFile = (context: vscode.ExtensionContext ) => 
+	vscode.commands.registerCommand('plantuml-gpt.fromImageFile', async (uri:vscode.Uri) => {
+	
+		const { apikey } = vscode.workspace.getConfiguration('plantuml-gpt');
+
+		if( !apikey ) {
+			return vscode.window.showWarningMessage('No OpenAPI Api Key set!');
+		}
+
+		if (!uri) {
+			return vscode.window.showWarningMessage('No image file selected!');
+ 		}
+
+		try {
+
+			const progressOptions = {
+				location: vscode.ProgressLocation.Notification,
+				title: 'Image to PlantUML',
+				cancellable: false
+			};
+			
+			await vscode.window.withProgress(progressOptions, async (progress, token) => {
+				// Start the progress
+				progress.report({ message: 'loading image and describing it...' });
+		
+				//const { diagramCode = '@startuml\n\n@enduml', diagram } = 
+				const steps = await imageFileToDiagram( { apiKey: apikey, imageFile: uri.fsPath }  );
+
+				let lastStep:any = null;
+				for await (const step of steps) {
+					
+					const stepName = Object.keys(step)[0];
+					progress.report({ message: `Task ${stepName} complete!` });
+					lastStep = step;
+				}
+				
+				progress.report({ message: 'translation completed!' });
+		
+				// Complete the progress
+				const { diagramCode = '@startuml\n\n@enduml', diagram } =  Object.values( lastStep )[0] as AgentState;
+
+				const filePath = `${uri.fsPath}.puml`;
+		
+				progress.report({ message: `writing file '${filePath}' completed!` });
+				
+				try {
+					// Create and open the file
+					const uri = vscode.Uri.file(filePath);
+					await vscode.workspace.fs.writeFile(uri, Buffer.from(diagramCode, 'utf8'));
+					const document = await vscode.workspace.openTextDocument(uri);
+					await vscode.window.showTextDocument(document);
+
+				} catch (error:any) {
+					vscode.window.showErrorMessage('Failed to create and open file: ' + error.message);
+				}
+	
+			});
+			
+	
+		}
+		catch( error:any ) {
+			vscode.window.showErrorMessage('Failed to process imageUrl: ' + error.message);
+		}
+		
+		
+	}
+);
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -267,6 +334,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	// context.subscriptions.push(_registerCommandOpenPanel());
 	context.subscriptions.push(_registerCommandNewFromImageUrl(context));
+	context.subscriptions.push(_registerCommandNewFromImageFile(context));
 
 	context.subscriptions.push(_registerPlantUMLViewProvider(context));
 		
