@@ -1,6 +1,39 @@
 # Changelog
 
 
+
+## [Unreleased](https://github.com/bsorrentino/vscode-plantuml-gpt.git/releases/tag/Unreleased) ()
+
+
+
+
+
+
+
+"name: v0.4.1-fix" is a release tag
+
+## [v0.4.1-fix](https://github.com/bsorrentino/vscode-plantuml-gpt.git/releases/tag/v0.4.1-fix) (2024-04-24)
+
+
+### Bug Fixes
+
+ -  error EmptyChannelError from langgraph ([bbcd2f8b3c595d8](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/bbcd2f8b3c595d83fb8d1bbc32a8b34d076c6f4c))
+
+
+### Documentation
+
+ -  update readme ([8162cbbb54adc06](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/8162cbbb54adc0639919d8e77338f138fef4a610))
+
+ -  update changelog ([0699d565cdb2bab](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/0699d565cdb2babfabad397898cfe6498ddea3c5))
+
+
+
+### ALM 
+
+ -  set next version ([2a81ae078e89518](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/2a81ae078e895180ea916cfbc46e14768424545d))
+
+
+
 "name: v0.4.0" is a release tag
 
 ## [v0.4.0](https://github.com/bsorrentino/vscode-plantuml-gpt.git/releases/tag/v0.4.0) (2024-04-19)
