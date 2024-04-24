@@ -51,6 +51,10 @@ Calling out known issues can help limit users opening duplicate issues against y
 
 ## Release Notes
 
+### 0.4.1-fix
+
+* Fix the `0.4.0` release.
+
 ### 0.4.0
 
 * Add AI Multi-Modality using [GPT-4 Vision API][gpt4v] to transform image representing diagram in plantuml script.
