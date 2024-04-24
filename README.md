@@ -51,7 +51,7 @@ Calling out known issues can help limit users opening duplicate issues against y
 
 ## Release Notes
 
-### 0.4.1-fix
+### 0.4.1
 
 * Fix the `0.4.0` release.
 
