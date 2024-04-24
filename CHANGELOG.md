@@ -10,6 +10,27 @@
 
 
 
+"name: v0.4.1" is a release tag
+
+## [v0.4.1](https://github.com/bsorrentino/vscode-plantuml-gpt.git/releases/tag/v0.4.1) (2024-04-24)
+
+
+
+### Documentation
+
+ -  update readme ([1fdb499cd8bb95a](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/1fdb499cd8bb95af5744854d5ed0c819b05b2ef4))
+
+ -  update changelog:wq ([295e0c6f324a9e5](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/295e0c6f324a9e598011b12c804dbb729483f0e7))
+
+
+
+### ALM 
+
+ -  move to next release ([e120635e7f61cba](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/e120635e7f61cba8de1330603c56e539374c8c5e))
+     > avoid problem &quot;The VS Marketplace doesn&#x27;t support prerelease versions: &#x27;0.4.1-fix&#x27;&quot;
+
+
+
 "name: v0.4.1-fix" is a release tag
 
 ## [v0.4.1-fix](https://github.com/bsorrentino/vscode-plantuml-gpt.git/releases/tag/v0.4.1-fix) (2024-04-24)
