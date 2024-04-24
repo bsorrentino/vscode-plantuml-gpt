@@ -219,7 +219,7 @@ const _registerCommandNewFromImageUrl = (context: vscode.ExtensionContext ) =>
 				try {
 					// Create and open the file
 					const uri = vscode.Uri.file(filePath);
-					await vscode.workspace.fs.writeFile(uri, Buffer.from(diagramCode, 'utf8'));
+					await vscode.workspace.fs.writeFile(uri, Buffer.from(diagramCode!, 'utf8'));
 					const document = await vscode.workspace.openTextDocument(uri);
 					await vscode.window.showTextDocument(document);
 
@@ -263,7 +263,10 @@ const _registerCommandNewFromImageFile = (context: vscode.ExtensionContext ) =>
 				// Start the progress
 				progress.report({ message: 'loading image and describing it...' });
 		
-				//const { diagramCode = '@startuml\n\n@enduml', diagram } = 
+				// TEST
+				// const diagramCode = '@startuml\n\n@enduml';
+
+				
 				const steps = await imageFileToDiagram( { apiKey: apikey, imageFile: uri.fsPath }  );
 
 				let lastStep:any = null;
@@ -277,7 +280,7 @@ const _registerCommandNewFromImageFile = (context: vscode.ExtensionContext ) =>
 				progress.report({ message: 'translation completed!' });
 		
 				// Complete the progress
-				const { diagramCode = '@startuml\n\n@enduml', diagram } =  Object.values( lastStep )[0] as AgentState;
+				const { diagramCode = '@startuml\n\n@enduml' } =  Object.values( lastStep )[0] as AgentState;
 
 				const filePath = `${uri.fsPath}.puml`;
 		
@@ -286,7 +289,7 @@ const _registerCommandNewFromImageFile = (context: vscode.ExtensionContext ) =>
 				try {
 					// Create and open the file
 					const uri = vscode.Uri.file(filePath);
-					await vscode.workspace.fs.writeFile(uri, Buffer.from(diagramCode, 'utf8'));
+					await vscode.workspace.fs.writeFile(uri, Buffer.from(diagramCode!, 'utf8'));
 					const document = await vscode.workspace.openTextDocument(uri);
 					await vscode.window.showTextDocument(document);
 
@@ -299,7 +302,7 @@ const _registerCommandNewFromImageFile = (context: vscode.ExtensionContext ) =>
 	
 		}
 		catch( error:any ) {
-			vscode.window.showErrorMessage('Failed to process imageUrl: ' + error.message);
+			vscode.window.showErrorMessage(`Failed to process imageUrl: ${error}`);
 		}
 		
 		
