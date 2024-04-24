@@ -1,9 +1,9 @@
-import { END, StateGraph } from "@langchain/langgraph";
+import { END, StateGraph, StateGraphArgs } from "@langchain/langgraph";
 import { ChatOpenAI } from "@langchain/openai";
 import { RunnableLambda, RunnableConfig } from "@langchain/core/runnables";
 import { z } from "zod";
 import { PromptTemplate } from "@langchain/core/prompts";
-import { JsonMarkdownStructuredOutputParser } from "langchain/output_parsers";
+import { JsonMarkdownStructuredOutputParser } from "@langchain/core/output_parsers";
 import { HumanMessage } from "@langchain/core/messages";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import * as hub from "langchain/hub";
@@ -40,22 +40,20 @@ const diagramSchema = z.object({
 });
 
 export interface AgentState {
-  diagramImageUrlOrData?: string;
-  diagramCode?: string;
-  diagram?: z.infer<typeof diagramSchema>
+  diagramCode: string|null;
+  diagram: z.infer<typeof diagramSchema> | null
 }
 
-
-
-export async function describeDiagramImage(llmVision: ChatOpenAI, state: AgentState, config?: RunnableConfig): Promise<Partial<AgentState>> {
+export async function describeDiagramImage(llmVision: ChatOpenAI, imageUrl: string,state: AgentState, config?: RunnableConfig): Promise<Partial<AgentState>> {
 
   const promptTemplate = await hub.pull<PromptTemplate>("bsorrentino/describe_diagram_image");
-  const outputParser = JsonMarkdownStructuredOutputParser.fromZodSchema(diagramSchema);
+  // <any> needs to avoid: TS2589: Type instantiation is excessively deep and possibly infinite.
+  const outputParser = JsonMarkdownStructuredOutputParser.fromZodSchema( <any>diagramSchema);
 
   // eslint-disable-next-line @typescript-eslint/naming-convention
   const prompt = await promptTemplate.format({ format_instructions: outputParser.getFormatInstructions() });
 
-  console.debug(prompt);
+  // console.debug(prompt);
 
   const messages = new HumanMessage({
     content: [
@@ -67,7 +65,7 @@ export async function describeDiagramImage(llmVision: ChatOpenAI, state: AgentSt
         "type": "image_url",
         // eslint-disable-next-line @typescript-eslint/naming-convention
         "image_url": {
-          "url": state.diagramImageUrlOrData
+          "url": imageUrl
         },
       },
 
@@ -80,7 +78,7 @@ export async function describeDiagramImage(llmVision: ChatOpenAI, state: AgentSt
 
   // console.debug( response  );
 
-  return { diagram: response };
+  return { diagram: response, diagramCode: null };
 }
 
 
@@ -139,7 +137,9 @@ const routeDiagramTranslation = (state: AgentState) => {
   }
 };
 
-function compileGraph(apiKey: string) {
+function executeGraph( args: { imageUrl: string, apiKey: string } ) {
+
+  const { apiKey, imageUrl } = args;
 
   const llm = new ChatOpenAI({
     apiKey: apiKey,
@@ -158,21 +158,14 @@ function compileGraph(apiKey: string) {
   });
 
   const agentState = {
-    diagramImageUrlOrData: {
-      value: null
-    },
-    diagramCode: {
-      value: null
-    },
-    diagram: {
-      value: null,
-    }
+    diagramCode: { value: null },
+    diagram: { value: null }
   };
 
-  const workflow = new StateGraph({ channels: agentState });
+  const workflow = new StateGraph<AgentState>( { channels: agentState } );
 
   workflow.addNode("agent_describer", new RunnableLambda({
-    func: (state, config) => describeDiagramImage(llmVision, state, config)
+    func: (state, config) => describeDiagramImage(llmVision, imageUrl, state, config)
   }));
   workflow.addNode("agent_sequence_plantuml", new RunnableLambda({
     func: (state, config) => translateSequenceDiagramDescriptionToPlantUML(llm, state, config)
@@ -192,9 +185,9 @@ function compileGraph(apiKey: string) {
   );
   workflow.setEntryPoint('agent_describer');
 
-  return workflow.compile();
+  const app = workflow.compile();
 
-
+  return app.stream( { diagram: null, diagramCode: null } );
 }
 
 const imageFileToUrl = async (imagePath: string) => {
@@ -231,10 +224,9 @@ export const imageUrlToDiagram = async (args: { imageUrl: string | undefined, ap
   if (!imageUrl || !isUrl(imageUrl)) {
     throw new Error(`Invalid image url: ${imageUrl}`);
   }
-  const app = compileGraph(apiKey);
-  return await app.stream({
-    diagramImageUrlOrData: imageUrl
-  });
+
+  return await executeGraph( { apiKey, imageUrl } );
+  
 };
 
 export const imageFileToDiagram = async (args: { imageFile: string, apiKey: string }) => {
@@ -245,9 +237,12 @@ export const imageFileToDiagram = async (args: { imageFile: string, apiKey: stri
     throw new Error(`Invalid image file: ${imageFile}`);
   }
 
-  const app = compileGraph(apiKey);
-  return await app.stream({
-    diagramImageUrlOrData: await imageFileToUrl(imageFile)
-  });
+  const imageUrl = await imageFileToUrl(imageFile);
+
+  if (!imageUrl) {
+    throw new Error(`Invalid image file: ${imageFile}`);
+  }
+
+  return await executeGraph( { apiKey, imageUrl } );
 
 };

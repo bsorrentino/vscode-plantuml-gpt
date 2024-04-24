@@ -219,7 +219,7 @@ const _registerCommandNewFromImageUrl = (context: vscode.ExtensionContext ) =>
 				try {
 					// Create and open the file
 					const uri = vscode.Uri.file(filePath);
-					await vscode.workspace.fs.writeFile(uri, Buffer.from(diagramCode, 'utf8'));
+					await vscode.workspace.fs.writeFile(uri, Buffer.from(diagramCode!, 'utf8'));
 					const document = await vscode.workspace.openTextDocument(uri);
 					await vscode.window.showTextDocument(document);
 
@@ -263,7 +263,10 @@ const _registerCommandNewFromImageFile = (context: vscode.ExtensionContext ) =>
 				// Start the progress
 				progress.report({ message: 'loading image and describing it...' });
 		
-				//const { diagramCode = '@startuml\n\n@enduml', diagram } = 
+				// TEST
+				// const diagramCode = '@startuml\n\n@enduml';
+
+				
 				const steps = await imageFileToDiagram( { apiKey: apikey, imageFile: uri.fsPath }  );
 
 				let lastStep:any = null;
@@ -277,7 +280,7 @@ const _registerCommandNewFromImageFile = (context: vscode.ExtensionContext ) =>
 				progress.report({ message: 'translation completed!' });
 		
 				// Complete the progress
-				const { diagramCode = '@startuml\n\n@enduml', diagram } =  Object.values( lastStep )[0] as AgentState;
+				const { diagramCode = '@startuml\n\n@enduml' } =  Object.values( lastStep )[0] as AgentState;
 
 				const filePath = `${uri.fsPath}.puml`;
 		
@@ -286,7 +289,7 @@ const _registerCommandNewFromImageFile = (context: vscode.ExtensionContext ) =>
 				try {
 					// Create and open the file
 					const uri = vscode.Uri.file(filePath);
-					await vscode.workspace.fs.writeFile(uri, Buffer.from(diagramCode, 'utf8'));
+					await vscode.workspace.fs.writeFile(uri, Buffer.from(diagramCode!, 'utf8'));
 					const document = await vscode.workspace.openTextDocument(uri);
 					await vscode.window.showTextDocument(document);
 
@@ -299,7 +302,7 @@ const _registerCommandNewFromImageFile = (context: vscode.ExtensionContext ) =>
 	
 		}
 		catch( error:any ) {
-			vscode.window.showErrorMessage('Failed to process imageUrl: ' + error.message);
+			vscode.window.showErrorMessage(`Failed to process imageUrl: ${error}`);
 		}
 		
 		
@@ -310,7 +313,7 @@ const _registerCommandNewFromImageFile = (context: vscode.ExtensionContext ) =>
 // Your extension is activated the very first time the command is executed
 export async function activate(context: vscode.ExtensionContext) {
 
-	// console.log( "storageUri", context.workspaceState , "globalStorageUri", context.globalState );
+	// console.debug( "storageUri", context.workspaceState , "globalStorageUri", context.globalState );
 
 
 	const { activeTextEditor } = vscode.window;
@@ -468,7 +471,7 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 	private _promptSaved:PromptsSaved;
 
 	constructor( private readonly _extensionUri: vscode.Uri, storage: LocalStorageService ) { 
-		// console.log( 'PlantUMLGPTProvider', _extensionUri);	
+		// console.debug( 'PlantUMLGPTProvider', _extensionUri);	
 
 		this._promptSaved = new PromptsSaved(storage);
 }
@@ -477,12 +480,12 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 								context: vscode.WebviewViewResolveContext<unknown>, 
 								token: vscode.CancellationToken): void | Thenable<void> 
 	{
-		console.log( 'PlantUMLGPTProvider', 'resolveWebviewView');
+		// console.debug( 'PlantUMLGPTProvider', 'resolveWebviewView');
 
 		this._view = webviewView;
 
 		this._view.onDidDispose(() => {
-			console.log( 'view.dispose()');
+			// console.debug( 'view.dispose()');
 			this._view = null;
 		}, null, this._disposables);
 
@@ -524,7 +527,7 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 	private _addMessageHandler( webview: vscode.Webview  ) {
 		return webview.onDidReceiveMessage(data => {
 
-			console.log( 'onDidReceiveMessage', data);
+			// console.debug( 'onDidReceiveMessage', data);
 
 			const { command, text } = data;
 
@@ -548,7 +551,7 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 						});
 					})
 					.catch( e => { 
-						// console.log( 'SUBMIT ERROR', e );
+						// console.debug( 'SUBMIT ERROR', e );
 						info = `ERROR: ${e.description ?? ''}`;
 					}).finally( () => 
 						this._sendMessageToWebView( 'prompt.submit', { info: info, progress: false } )
@@ -636,8 +639,8 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 		const submitDisabledTag = ( tag:string ) => submitDisabled ? tag : '';
 		const undoDisabledTag = ( tag:string ) => undoDisabled ? tag : '';
 
-		// console.log(webViewJSUri, cssUri, nonce );
-		// console.log(  webview.cspSource );
+		// console.debug(webViewJSUri, cssUri, nonce );
+		// console.debug(  webview.cspSource );
 
 		return `
 <!DOCTYPE html>
@@ -773,7 +776,7 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 
 			const result = choices[0].message.content;
 			const info = `Tokens | prompt: ${usage?.prompt_tokens} | completion: ${usage?.completion_tokens} | total: ${usage?.total_tokens} |`;
-			console.log( result );
+			// console.debug( result );
 			if( result ) {
 				_replaceTextInEditor( activeTextEditor, result );
 			}
