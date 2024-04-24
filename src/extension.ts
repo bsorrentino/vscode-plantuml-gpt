@@ -313,7 +313,7 @@ const _registerCommandNewFromImageFile = (context: vscode.ExtensionContext ) =>
 // Your extension is activated the very first time the command is executed
 export async function activate(context: vscode.ExtensionContext) {
 
-	// console.log( "storageUri", context.workspaceState , "globalStorageUri", context.globalState );
+	// console.debug( "storageUri", context.workspaceState , "globalStorageUri", context.globalState );
 
 
 	const { activeTextEditor } = vscode.window;
@@ -471,7 +471,7 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 	private _promptSaved:PromptsSaved;
 
 	constructor( private readonly _extensionUri: vscode.Uri, storage: LocalStorageService ) { 
-		// console.log( 'PlantUMLGPTProvider', _extensionUri);	
+		// console.debug( 'PlantUMLGPTProvider', _extensionUri);	
 
 		this._promptSaved = new PromptsSaved(storage);
 }
@@ -480,12 +480,12 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 								context: vscode.WebviewViewResolveContext<unknown>, 
 								token: vscode.CancellationToken): void | Thenable<void> 
 	{
-		console.log( 'PlantUMLGPTProvider', 'resolveWebviewView');
+		// console.debug( 'PlantUMLGPTProvider', 'resolveWebviewView');
 
 		this._view = webviewView;
 
 		this._view.onDidDispose(() => {
-			console.log( 'view.dispose()');
+			// console.debug( 'view.dispose()');
 			this._view = null;
 		}, null, this._disposables);
 
@@ -527,7 +527,7 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 	private _addMessageHandler( webview: vscode.Webview  ) {
 		return webview.onDidReceiveMessage(data => {
 
-			console.log( 'onDidReceiveMessage', data);
+			// console.debug( 'onDidReceiveMessage', data);
 
 			const { command, text } = data;
 
@@ -551,7 +551,7 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 						});
 					})
 					.catch( e => { 
-						// console.log( 'SUBMIT ERROR', e );
+						// console.debug( 'SUBMIT ERROR', e );
 						info = `ERROR: ${e.description ?? ''}`;
 					}).finally( () => 
 						this._sendMessageToWebView( 'prompt.submit', { info: info, progress: false } )
@@ -639,8 +639,8 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 		const submitDisabledTag = ( tag:string ) => submitDisabled ? tag : '';
 		const undoDisabledTag = ( tag:string ) => undoDisabled ? tag : '';
 
-		// console.log(webViewJSUri, cssUri, nonce );
-		// console.log(  webview.cspSource );
+		// console.debug(webViewJSUri, cssUri, nonce );
+		// console.debug(  webview.cspSource );
 
 		return `
 <!DOCTYPE html>
@@ -776,7 +776,7 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 
 			const result = choices[0].message.content;
 			const info = `Tokens | prompt: ${usage?.prompt_tokens} | completion: ${usage?.completion_tokens} | total: ${usage?.total_tokens} |`;
-			console.log( result );
+			// console.debug( result );
 			if( result ) {
 				_replaceTextInEditor( activeTextEditor, result );
 			}
