@@ -8,6 +8,12 @@ vscode extension that allows to create/update PlantUML diagram using GPT. Though
 * Uses current diagram as input context for GPT processing, this allows to perform intelligent update
 * Keeps track of submitted prompts with possibility to persist them
 
+### Create a diagram from Image
+
+From version `0.4.x` there is the possibility to generate a PlantUML script from an image  either in the project workspace or from an URL.  In the video below you can see how generate a PlantUML diagram from an image into workspace:
+
+![create diagram from image](images/create-diagram-from-image.gif)
+
 ### Create a diagram using NLP
 
 Describe best as you can the diagram that you'd like to create and GPT will generate it. In the video below you can see the generated diagram using prompt:
