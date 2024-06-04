@@ -4,7 +4,9 @@ import * as vscode from 'vscode';
 import { ChatOpenAI, ClientOptions } from '@langchain/openai';
 import * as https from 'node:https';
 import path = require('node:path');
+
 import { AgentState, imageUrlToDiagram, imageFileToDiagram } from './image-to-diagram';
+
 
 // [How to use the VSCode local storage API](https://www.chrishasz.com/blog/2020/07/28/vscode-how-to-use-local-storage-api/)
 class LocalStorageService {
@@ -550,9 +552,19 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 							length: this._promptHistory.length
 						});
 					})
-					.catch( e => { 
-						// console.debug( 'SUBMIT ERROR', e );
-						info = `ERROR: ${e.description ?? ''}`;
+					.catch( error => { 
+						if( error instanceof Error ) {
+
+							const msg = `{error.message}\n${error.stack || ''}`;
+							info = `ERROR OCCURRED!. see the message for details.`;
+							vscode.window.showErrorMessage( msg );
+						}
+						else {
+							const errorDescription = error.toString();
+							info = `ERROR: ${errorDescription}`;
+						}
+						
+						
 					}).finally( () => 
 						this._sendMessageToWebView( 'prompt.submit', { info: info, progress: false } )
 					);
@@ -662,7 +674,7 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
    <div id="prompt_container">
     <vscode-text-area id="prompt" rows="10" cols="80" resize="horizontal" ${submitDisabledTag('readonly')} placeholder="${ submitDisabled ? 'Please provides API KEY in extension settings' : 'Let chat with PlantUML diagram'}"></vscode-text-area>
 	<div id="bottom-bar">
-	    <div id="info"></div>
+		<div id="info"></div>
 		<div id="command-bar">
 			<vscode-button id="undo" ${undoDisabledTag('disabled')}>Undo</vscode-button>
 			<vscode-button id="submit" ${submitDisabledTag('disabled')}>Submit</vscode-button>
@@ -715,21 +727,21 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 
 		if( !(apikey && apikey.length>0) ) { // GUARD
 			// eslint-disable-next-line no-throw-literal
-			throw 'apikey is not set!';
+			throw new Error('apikey is not set!');
 		}
 
 		const { activeTextEditor } = vscode.window;
 
 		if( !activeTextEditor ) {
 			// eslint-disable-next-line no-throw-literal
-			throw 'no active editor!';
+			throw new Error('no active editor!');
 		}
 
 		const input = _getAllTextFromEditor( activeTextEditor) ?? '';
 
 		if( !( instruction && instruction.length > 0) ) {
 			// eslint-disable-next-line no-throw-literal
-			throw 'instruction is empty!';
+			throw new Error('instruction is empty!');
 		}
 
 		const configuration:ClientOptions = {
@@ -738,64 +750,52 @@ class PlantUMLGPTProvider implements vscode.WebviewViewProvider {
 		
 		const openai = new ChatOpenAI(configuration);
 		
-		try {
+		// const response = await openaiRawRequest( apikey,{
+		// 	model: "text-davinci-edit-001",
+		// 	input: input.replace(/(?:\r\n|\r|\n)+/g, '\n'),
+		// 	instruction: instruction,
+		// 	temperature: 0,
+		// 	// eslint-disable-next-line @typescript-eslint/naming-convention
+		// 	top_p: 1,
+		// });
+		// const result = response.choices[0].text;
 
-			// const response = await openaiRawRequest( apikey,{
-			// 	model: "text-davinci-edit-001",
-			// 	input: input.replace(/(?:\r\n|\r|\n)+/g, '\n'),
-			// 	instruction: instruction,
-			// 	temperature: 0,
-			// 	// eslint-disable-next-line @typescript-eslint/naming-convention
-			// 	top_p: 1,
-			// });
-			// const result = response.choices[0].text;
+		const response = await openai.completionWithRetry({
+			model: "gpt-3.5-turbo",
+			messages: [
+				{
+					role: "system",
+					content: `You are my plantUML assistant
+					Please respond exclusively with diagram code`
+				},
+				{
+					role: "assistant",
+					content: input.replace(/(?:\r\n|\r|\n)+/g, '\n')
+				},
+				{
+					role: 'user',
+					content: instruction
+				}					
+			],
+			temperature: 0.5,
+			// eslint-disable-next-line @typescript-eslint/naming-convention
+			top_p: 1,
+		}, { maxRetries: 2 });
 
-			const response = await openai.completionWithRetry({
-				model: "gpt-3.5-turbo",
-				messages: [
-					{
-						role: "system",
-						content: `You are my plantUML assistant
-						Please respond exclusively with diagram code`
-					},
-					{
-						role: "assistant",
-						content: input.replace(/(?:\r\n|\r|\n)+/g, '\n')
-					},
-					{
-						role: 'user',
-						content: instruction
-					}					
-				],
-				temperature: 0.5,
-				// eslint-disable-next-line @typescript-eslint/naming-convention
-				top_p: 1,
-			}, { maxRetries: 2 });
+		const { choices, usage } = response;
 
-			const { choices, usage } = response;
-
-			const result = choices[0].message.content;
-			const info = `Tokens | prompt: ${usage?.prompt_tokens} | completion: ${usage?.completion_tokens} | total: ${usage?.total_tokens} |`;
-			// console.debug( result );
-			if( result ) {
-				_replaceTextInEditor( activeTextEditor, result );
-			}
-
-
-			return { input, result, info };
-		}
-		catch( error:any ) {
-			if( error.response ) {
-				throw error.response;
-			}
-			else {
-				throw error;
-			}
+		const result = choices[0].message.content;
+		const info = `Tokens | prompt: ${usage?.prompt_tokens} | completion: ${usage?.completion_tokens} | total: ${usage?.total_tokens} |`;
+		// console.debug( result );
+		if( result ) {
+			_replaceTextInEditor( activeTextEditor, result );
 		}
 
+		return { input, result, info };
 	}
 
 }
+
 
 
 interface OpenAIResult {

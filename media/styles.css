@@ -15,6 +15,8 @@
 #bottom-bar {
     display: flex;
     justify-content:space-between;
+    align-items: flex-start;
+    /* flex-direction: column; */
     gap: 5px;
 }
 
@@ -22,6 +24,14 @@
     display: flex;
     justify-content:flex-end;
     gap: 5px;
+}
+
+#info {
+    max-width: 500px;
+    max-width: 600px;
+    height: 200px;
+    overflow: auto;
+    color: red;
 }
 
 .table-scroll {
