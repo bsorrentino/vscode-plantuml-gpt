@@ -10,6 +10,33 @@
 
 
 
+"name: v0.4.3" is a release tag
+
+## [v0.4.3](https://github.com/bsorrentino/vscode-plantuml-gpt.git/releases/tag/v0.4.3) (2024-06-04)
+
+
+### Bug Fixes
+
+ -  show original error message +stack using vscode popup ([6198ba6667677aa](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/6198ba6667677aa16967139ff08f2ffb84c6f2d3))
+     > resolve #4
+
+
+### Documentation
+
+ -  update readme ([153acea12672209](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/153acea1267220961f24ee32be141edb549188ab))
+
+ -  update readme ([c405651c7190774](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/c405651c71907749d790d27143328d1246ebe453))
+
+ -  update changelog ([2451cff3cddd7f9](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/2451cff3cddd7f937a3ff43a7c085dbaad12fbe2))
+
+
+
+### ALM 
+
+ -  move to next version ([7e44bc6d7952612](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/7e44bc6d7952612131b0c94746a00ee122b67181))
+
+
+
 "name: v0.4.2" is a release tag
 
 ## [v0.4.2](https://github.com/bsorrentino/vscode-plantuml-gpt.git/releases/tag/v0.4.2) (2024-05-06)
