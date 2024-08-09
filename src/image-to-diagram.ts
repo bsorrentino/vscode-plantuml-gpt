@@ -137,13 +137,13 @@ const routeDiagramTranslation = (state: AgentState) => {
   }
 };
 
-function executeGraph( args: { imageUrl: string, apiKey: string } ) {
+function executeGraph( args: { imageUrl: string, apiKey: string, textModel: string, visionModel: string } ) {
 
-  const { apiKey, imageUrl } = args;
+  const { apiKey, imageUrl, textModel, visionModel } = args;
 
   const llm = new ChatOpenAI({
     apiKey: apiKey,
-    modelName: "gpt-3.5-turbo",
+    modelName: textModel,
     maxTokens: 2000,
     temperature: 0,
     maxRetries: 1,
@@ -151,7 +151,7 @@ function executeGraph( args: { imageUrl: string, apiKey: string } ) {
 
   const llmVision = new ChatOpenAI({
     apiKey: apiKey,
-    modelName: "gpt-4-vision-preview",
+    modelName: visionModel,
     maxTokens: 2000,
     temperature: 0,
     maxRetries: 1,
@@ -219,19 +219,19 @@ const isFileExist = async (filePath: string) => {
   }
 };
 
-export const imageUrlToDiagram = async (args: { imageUrl: string | undefined, apiKey: string }) => {
-  const { apiKey, imageUrl } = args;
+export const imageUrlToDiagram = async (args: { imageUrl: string | undefined, apiKey: string, textModel: string, visionModel: string }) => {
+  const { apiKey, imageUrl, textModel, visionModel } = args;
   if (!imageUrl || !isUrl(imageUrl)) {
     throw new Error(`Invalid image url: ${imageUrl}`);
   }
 
-  return await executeGraph( { apiKey, imageUrl } );
+  return await executeGraph( { apiKey, imageUrl, textModel, visionModel } );
   
 };
 
-export const imageFileToDiagram = async (args: { imageFile: string, apiKey: string }) => {
+export const imageFileToDiagram = async (args: { imageFile: string, apiKey: string, textModel: string, visionModel: string }) => {
 
-  const { apiKey, imageFile } = args;
+  const { apiKey, imageFile, textModel, visionModel } = args;
 
   if (!imageFile || !await isFileExist(imageFile)) {
     throw new Error(`Invalid image file: ${imageFile}`);
@@ -243,6 +243,6 @@ export const imageFileToDiagram = async (args: { imageFile: string, apiKey: stri
     throw new Error(`Invalid image file: ${imageFile}`);
   }
 
-  return await executeGraph( { apiKey, imageUrl } );
+  return await executeGraph( { apiKey, imageUrl, textModel, visionModel } );
 
 };

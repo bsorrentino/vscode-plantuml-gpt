@@ -37,6 +37,18 @@
           "type": "string",
           "default": null,
           "description": "OpenAI Api Key"
+        },
+        "plantuml-gpt.tex-tmodel": {
+          "type": "string",
+          "enum": ["gpt-3.5-turbo", "gpt-4o-mini"],
+          "default": "gpt-3.5-turbo",
+          "description": "LLM model that process text prompt"
+        },
+        "plantuml-gpt.vision-model": {
+          "type": "string",
+          "enum": ["gpt-4o"],
+          "default": "gpt-4o",
+          "description": "LLM model that process image"
         }
       }
     },

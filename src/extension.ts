@@ -167,7 +167,7 @@ const _registerCommandOpenPanel = () =>
 const _registerCommandNewFromImageUrl = (context: vscode.ExtensionContext ) => 
 	vscode.commands.registerCommand('plantuml-gpt.fromImageUrl', async () => {
 	
-		const { apikey } = vscode.workspace.getConfiguration('plantuml-gpt');
+		const { apikey, 'text-model':textModel, 'vision-model':visionModel } = vscode.workspace.getConfiguration('plantuml-gpt');
 
 		if( !apikey ) {
 			return vscode.window.showWarningMessage('No OpenAPI Api Key set!');
@@ -198,7 +198,7 @@ const _registerCommandNewFromImageUrl = (context: vscode.ExtensionContext ) =>
 				progress.report({ message: 'loading image and describing it...' });
 		
 				//const { diagramCode = '@startuml\n\n@enduml', diagram } = 
-				const steps = await imageUrlToDiagram( { apiKey: apikey, imageUrl: userInput }  );
+				const steps = await imageUrlToDiagram( { apiKey: apikey, imageUrl: userInput, textModel, visionModel }  );
 
 				let lastStep:any = null;
 				for await (const step of steps) {
@@ -243,7 +243,7 @@ const _registerCommandNewFromImageUrl = (context: vscode.ExtensionContext ) =>
 const _registerCommandNewFromImageFile = (context: vscode.ExtensionContext ) => 
 	vscode.commands.registerCommand('plantuml-gpt.fromImageFile', async (uri:vscode.Uri) => {
 	
-		const { apikey } = vscode.workspace.getConfiguration('plantuml-gpt');
+		const { apikey, 'text-model':textModel, 'vision-model':visionModel } = vscode.workspace.getConfiguration('plantuml-gpt');
 
 		if( !apikey ) {
 			return vscode.window.showWarningMessage('No OpenAPI Api Key set!');
@@ -269,7 +269,7 @@ const _registerCommandNewFromImageFile = (context: vscode.ExtensionContext ) =>
 				// const diagramCode = '@startuml\n\n@enduml';
 
 				
-				const steps = await imageFileToDiagram( { apiKey: apikey, imageFile: uri.fsPath }  );
+				const steps = await imageFileToDiagram( { apiKey: apikey, imageFile: uri.fsPath, textModel, visionModel }  );
 
 				let lastStep:any = null;
 				for await (const step of steps) {
