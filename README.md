@@ -59,7 +59,7 @@ Calling out known issues can help limit users opening duplicate issues against y
 
 ### 0.4.4
 
-* Externalize model names in configuration. fix issues [#6] and [#7]
+* Externalize model names in configuration. fix issues [#6](https://github.com/bsorrentino/vscode-plantuml-gpt/issues/6) and [#7](https://github.com/bsorrentino/vscode-plantuml-gpt/issues/7)
 
 ### 0.4.3
 
