@@ -1,12 +1,28 @@
 # Changelog
 
 
+"name: v4.4.4" is a release tag
 
-## [Unreleased](https://github.com/bsorrentino/vscode-plantuml-gpt.git/releases/tag/Unreleased) ()
+## [v4.4.4](https://github.com/bsorrentino/vscode-plantuml-gpt.git/releases/tag/v4.4.4) (2024-08-09)
+
+
+### Bug Fixes
+
+ -  externalize model names configuration ([9cc3c6c99e7ab45](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/9cc3c6c99e7ab4544ec3333bfdf27e1ab9004f14))
+     > sove issue #7
+
+
+### Documentation
+
+ -  update readme ([daaacc2ef58b1a4](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/daaacc2ef58b1a4970244da64c11239826371d82))
+
+ -  update changelog ([8a5f6cc3cedf96f](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/8a5f6cc3cedf96f9cf9f5145f122ddad80d85dc6))
 
 
 
+### ALM 
 
+ -  move to next version ([0c396ef9e748f29](https://github.com/bsorrentino/vscode-plantuml-gpt.git/commit/0c396ef9e748f29db41f483c1b681241f4d54240))
 
 
 
